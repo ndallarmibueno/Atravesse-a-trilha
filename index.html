@@ -33,9 +33,9 @@ button{font:inherit;font-weight:600;border-radius:14px;border:3px solid var(--ac
 .hint{text-align:center;font-weight:500;margin-top:6px}
 .strip{margin-top:10px;background:var(--card);border:2px solid var(--ln);border-radius:14px;padding:6px 14px 4px}
 .strip small{color:var(--mut);font-weight:500}
-.lane{position:relative;height:70px;margin-top:2px}
-.lane::after{content:'🏁';position:absolute;right:-2px;top:0;font-size:20px}
-.mate{position:absolute;font-size:22px;line-height:1;transition:left .5s linear}
+.lane{position:relative;height:92px;margin-top:2px}
+.lane::after{content:'';position:absolute;right:0;top:0;bottom:0;width:14px;background:repeating-conic-gradient(#1d1b4b 0 25%,#fff 0 50%) 0 0/14px 14px;border:2px solid #1d1b4b;border-radius:2px}
+.mate{position:absolute;font-size:22px;transition:left .5s linear}
 .mate.hit{animation:hit .6s}
 .mate.me i{position:absolute;left:-3px;right:-3px;bottom:-3px;height:3px;background:var(--acc);border-radius:2px}
 .mate i{display:none}.mate.me i{display:block}
@@ -59,6 +59,11 @@ td.e{font-size:1.5em}
 .pill{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:600;font-size:.85em;border:2px solid var(--ln)}
 .pill.ok{border-color:var(--good);color:var(--good)}.pill.no{border-color:var(--bad);color:var(--bad)}
 ul{padding-left:1.2em;margin:6px 0 10px}li{margin-bottom:5px}
+img.px{image-rendering:pixelated;image-rendering:crisp-edges;vertical-align:middle;display:inline-block}
+.av-pick button{padding:6px;line-height:0}
+.mate{line-height:0}
+.big-e{line-height:0}
+td.e{line-height:0}
 
 </style>
 </head>
@@ -82,17 +87,17 @@ ul{padding-left:1.2em;margin:6px 0 10px}li{margin-bottom:5px}
 </main>
 <script>
 /* ===== Textos do jogo (truques, regras, lei) ===== */
-const EM = ['🦊','🐼','🐸','🦁','🐙','🦄','🐯','🐵','🐧','🦉','🐢','🐬','🦋','🐨','🐰'];
+const EM = Array.from({ length: 15 }, (_, i) => 'c' + i);
 const TRK = [
-  { e: '🎁', n: 'O presente que não era presente',
+  { n: 'O presente que não era presente',
     d: 'Um presente brilhante apareceu no seu caminho. Se você desviava, vinham mais, e depois uma fileira que não dava para pular. O jogo queria que você pegasse o "prêmio" e perdesse.' },
-  { e: '📢', n: 'O anúncio que cobria o jogo',
+  { n: 'O anúncio que cobria o jogo',
     d: 'Um anúncio tapou a tela justo quando os obstáculos vinham. O botão de fechar era minúsculo e fugia do mouse. O jogo escondeu o que vinha pela frente.' },
-  { e: '🐻', n: 'O bicho gigante',
+  { n: 'O bicho gigante',
     d: 'Apareceu um obstáculo grande demais para qualquer pulo. Não tinha como passar, por mais que você tentasse. Não era falta de habilidade sua.' },
-  { e: '😎', n: 'O "amigo" que não era amigo',
+  { n: 'O "amigo" que não era amigo',
     d: 'Alguém que você não conhece começou a falar com você, fazendo convites tentadores e abrindo portas que não davam para desviar. A corrida não parou, e você não teve como escapar.' },
-  { e: '🏁', n: 'A linha que fugia',
+  { n: 'A linha que fugia',
     d: 'A linha de chegada ficava sempre um pouco mais à frente. Depois o jogo acelerou e encheu a pista de obstáculos. Ele queria que você nunca parasse, até perder.' }
 ];
 const RULES = {
@@ -114,28 +119,143 @@ const RULES = {
   15: { t: 'Deixar o jogo ainda mais rápido', d: 'Mais adrenalina!', n: 'Mais rápido só deixa tudo mais difícil. Os truques continuam.' }
 };
 
+/* ===== Pixel art: todos os desenhos são feitos em código (sem imagens externas) ===== */
+const Pix = (() => {
+  const OUT = '#1d1b4b';
+  const cache = {}, urls = {};
+  const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+
+  // Adiciona um contorno escuro de 1 pixel em volta de tudo que foi desenhado.
+  function outline(src) {
+    const w = src.width, h = src.height, c = mk(w + 2, h + 2), x = c.getContext('2d');
+    const d = src.getContext('2d').getImageData(0, 0, w, h).data, on = (i, j) => i >= 0 && j >= 0 && i < w && j < h && d[(j * w + i) * 4 + 3] > 0;
+    x.fillStyle = OUT;
+    for (let j = -1; j <= h; j++) for (let i = -1; i <= w; i++) if (!on(i, j) && (on(i - 1, j) || on(i + 1, j) || on(i, j - 1) || on(i, j + 1))) x.fillRect(i + 1, j + 1, 1, 1);
+    x.drawImage(src, 1, 1); return c;
+  }
+  function rows(r, pal, noOut) {
+    const w = Math.max(...r.map(s => s.length)), c = mk(w, r.length), x = c.getContext('2d');
+    r.forEach((s, j) => [...s].forEach((ch, i) => { if (pal[ch]) { x.fillStyle = pal[ch]; x.fillRect(i, j, 1, 1); } }));
+    return noOut ? c : outline(c);
+  }
+  function rects(w, h, list, noOut) {
+    const c = mk(w, h), x = c.getContext('2d');
+    for (const [col, a, b, cw, ch] of list) { x.fillStyle = col; x.fillRect(a, b, cw, ch); }
+    return noOut ? c : outline(c);
+  }
+
+  // ---------- criaturas (personagens dos alunos e o "amigo") ----------
+  const COLORS = ['#ff7a59', '#ffd23f', '#4ade80', '#38bdf8', '#a78bfa', '#f472b6', '#fb923c', '#2dd4bf', '#f87171', '#a3e635', '#60a5fa', '#e879f9', '#fbbf24', '#34d399', '#c084fc'];
+  const SPECS = COLORS.map((col, i) => ({
+    col, top: ['ears', 'horns', 'antenna', 'spikes', 'tuft'][i % 5], eyes: [2, 1, 3, 2, 2, 1, 2][i % 7], mouth: ['smile', 'tooth', 'o', 'grin'][i % 4], spots: i % 3 === 0
+  }));
+  function shade(hex, k) { const n = parseInt(hex.slice(1), 16), f = v => Math.max(0, Math.min(255, Math.round(v * k))); return '#' + [n >> 16, (n >> 8) & 255, n & 255].map(v => f(v).toString(16).padStart(2, '0')).join(''); }
+  function creature(s, frame) {
+    const c = mk(16, 16), x = c.getContext('2d'), dk = shade(s.col, 0.68), lt = shade(s.col, 1.25);
+    const P = (col, a, b, w, h) => { x.fillStyle = col; x.fillRect(a, b, w || 1, h || 1); };
+    // enfeites do topo
+    if (s.top === 'ears') { P(s.col, 3, 1, 3, 4); P(s.col, 10, 1, 3, 4); P(dk, 4, 2, 1, 2); P(dk, 11, 2, 1, 2); }
+    else if (s.top === 'horns') { P(lt, 3, 1, 2, 4); P(lt, 11, 1, 2, 4); P('#fff', 3, 1, 1, 1); P('#fff', 12, 1, 1, 1); }
+    else if (s.top === 'antenna') { P(dk, 7, 1, 2, 3); P('#ffd23f', 6, 0, 4, 2); }
+    else if (s.top === 'spikes') { P(dk, 4, 2, 2, 3); P(dk, 7, 1, 2, 4); P(dk, 10, 2, 2, 3); }
+    else { P(dk, 6, 2, 1, 2); P(dk, 8, 1, 1, 3); P(dk, 9, 2, 1, 2); }
+    // corpo
+    const hw = [4, 5, 6, 6, 6, 6, 6, 5, 4];
+    hw.forEach((w, j) => P(s.col, 8 - w, 4 + j, w * 2, 1));
+    P(lt, 6, 10, 4, 2);
+    if (s.spots) { P(dk, 3, 8, 2, 1); P(dk, 11, 6, 2, 1); P(dk, 10, 10, 1, 1); }
+    // pés (alternam a cada quadro)
+    if (frame === 0) { P(dk, 4, 13, 3, 2); P(dk, 10, 13, 3, 1); } else { P(dk, 4, 13, 3, 1); P(dk, 10, 13, 3, 2); }
+    // olhos
+    const eye = (a, b, big) => { P('#fff', a, b, 2, big ? 3 : 2); P(OUT, a + 1, b + (big ? 1 : 0), 1, 2); };
+    if (s.eyes === 'shades') { P(OUT, 3, 6, 10, 2); P('#fff', 5, 6, 1, 1); P('#fff', 10, 6, 1, 1); }
+    else if (s.eyes === 1) eye(7, 6, true);
+    else if (s.eyes === 3) { eye(4, 7); eye(10, 7); eye(7, 5); }
+    else { eye(4, 6); eye(10, 6); }
+    // boca
+    if (s.mouth === 'grin') { P(OUT, 4, 10, 8, 1); P('#fff', 5, 10, 6, 1); P(OUT, 5, 11, 6, 1); }
+    else if (s.mouth === 'o') { P(OUT, 7, 10, 2, 2); }
+    else if (s.mouth === 'tooth') { P(OUT, 5, 10, 6, 1); P('#fff', 7, 11, 2, 1); }
+    else { P(OUT, 5, 10, 1, 1); P(OUT, 6, 11, 4, 1); P(OUT, 10, 10, 1, 1); }
+    return outline(c);
+  }
+  const FRIEND = { col: '#ffd23f', top: 'tuft', eyes: 'shades', mouth: 'grin', spots: false };
+
+  // ---------- obstáculos e cenário ----------
+  const G = '#2e9e4a', GD = '#1c6b30', BR = '#8b5a2b', Y = '#ffd23f', R = '#e23b3b', RD = '#a32323', W = '#fff';
+  const build = {
+    cactus: () => rows(['.....GG....', '....GGGD...', '....GGGD...', '.GG.GGGD...', '.GG.GGGD.GG', '.GG.GGGD.GG', '.GGGGGGD.GG', '..DDGGGDGGD', '....GGGGGD.', '....GGGD...', '....GGGD...', '....GGGD...', '....GGGD...', '....GGGD...', '....GGGD...', '....GGGD...'], { G, D: GD }),
+    pine: () => rows(['.....GG.....', '....GGGG....', '....GGGG....', '...GGGGGG...', '...GDGGGG...', '..GGGGGGGG..', '..GGDGGGGG..', '.GGGGGGGGGG.', '.GGGDGGGGGG.', 'GGGGGGGGGGGG', '.....BB.....', '.....BB.....', '.....BB.....'], { G, D: GD, B: BR }),
+    bird0: () => rows(['..PP......PP..', '..PPP....PPP..', '...PPP..PPP...', '....PPPPPPPYY.', '.....PPWPPYYY.', '.....PPPPPP...', '......PPPP....'], { P: '#6d4fd1', W, Y }),
+    bird1: () => rows(['..............', '....PPPPPP.YY.', '..PPPPPPWPYYY.', '.PPP.PPPPPP...', 'PP...PPPPPP...', '.....PPPPP....', '......PP......'], { P: '#6d4fd1', W, Y }),
+    gift: () => rows(['...YY..YY...', '..Y..YY..Y..', '...YYYYYY...', 'RRRRRYYRRRRR', 'RRRRRYYRRRRR', 'YYYYYYYYYYYY', 'RRRRRYYRRRRR', 'RRRRRYYRRRRR', 'RRRRRYYRRRRR', 'RRRRRYYRRRRR', 'RRRRRYYRRRRR', 'DDDDDDDDDDDD'], { Y, R, D: RD }),
+    bear: () => rects(24, 24, [
+      [BR, 3, 12, 18, 11], [BR, 1, 13, 4, 9], [BR, 19, 13, 4, 9], ['#c99a64', 8, 15, 8, 8], ['#5a3516', 4, 22, 5, 2], ['#5a3516', 15, 22, 5, 2],
+      [BR, 5, 3, 14, 10], [BR, 4, 2, 4, 4], [BR, 16, 2, 4, 4], ['#c99a64', 5, 3, 2, 2], ['#c99a64', 17, 3, 2, 2],
+      ['#c99a64', 8, 8, 8, 5], ['#3b1d08', 11, 9, 2, 2], [W, 8, 6, 3, 2], [W, 13, 6, 3, 2], [OUT, 9, 6, 1, 2], [OUT, 14, 6, 1, 2],
+      ['#5a3516', 7, 5, 4, 1], ['#5a3516', 13, 5, 4, 1], [W, 9, 12, 1, 1], [W, 11, 12, 1, 1], [W, 13, 12, 1, 1]]),
+    door: () => rects(10, 24, [['#6b3f12', 0, 0, 10, 24], [BR, 1, 1, 8, 22], ['#b9814a', 2, 2, 6, 9], ['#b9814a', 2, 13, 6, 9], [Y, 7, 12, 2, 2]]),
+    cloud: () => rows(['...WWW......', '..WWWWWWW...', '.WWWWWWWWWW.', 'WWWWWWWWWWWW'], { W: '#fff' }, true),
+    // ícones usados nos relatórios do professor e dos alunos
+    ad: () => rects(14, 12, [[W, 0, 0, 14, 12], ['#ff3b6b', 0, 0, 14, 3], [W, 11, 1, 2, 1], ['#16a34a', 3, 7, 8, 3], ['#1d1b4b', 3, 4, 8, 1]]),
+    flag: () => { const o = [['#1d1b4b', 0, 0, 2, 16]]; for (let j = 0; j < 4; j++) for (let i = 0; i < 5; i++) o.push([(i + j) % 2 ? W : '#1d1b4b', 2 + i * 2, j * 2, 2, 2]); return rects(12, 16, o); }
+  };
+  const iconKey = { 0: 'gift', 1: 'ad', 2: 'bear', 3: 'friend', 4: 'flag' };
+
+  function get(name, frame) {
+    if (!name) name = 'c0';
+    const key = name + ':' + (frame || 0);
+    if (cache[key]) return cache[key];
+    let c;
+    if (/^c\d+$/.test(name)) c = creature(SPECS[+name.slice(1) % SPECS.length], frame || 0);
+    else if (name === 'friend') c = creature(FRIEND, frame || 0);
+    else { if (!build[name]) throw new Error('sprite? ' + name); c = build[name](); }
+    return (cache[key] = c);
+  }
+  // Desenha centralizado em x, com a base em by e altura h. Ret: largura desenhada.
+  function draw(c, name, x, by, h, frame, flip) {
+    const s = get(name, frame), w = s.width * h / s.height;
+    c.imageSmoothingEnabled = false;
+    if (flip) { c.save(); c.translate(x, 0); c.scale(-1, 1); c.drawImage(s, -w / 2, by - h, w, h); c.restore(); }
+    else c.drawImage(s, x - w / 2, by - h, w, h);
+    return w;
+  }
+  // Para o HTML: imagem ampliada em pixels nítidos.
+  function url(name) {
+    if (urls[name]) return urls[name];
+    const s = get(name, 0), k = 6, c = mk(s.width * k, s.height * k), x = c.getContext('2d');
+    x.imageSmoothingEnabled = false; x.drawImage(s, 0, 0, c.width, c.height);
+    return (urls[name] = c.toDataURL());
+  }
+  const img = (name, px, cls) => `<img class="px ${cls || ''}" src="${url(name)}" width="${px}" height="${px}" alt="" draggable="false">`;
+  const icon = i => iconKey[i] || 'gift';
+  return { get, draw, url, img, icon, count: SPECS.length };
+})();
+
 /* ===== Truques do Jogo (cada um tem um roteiro que garante a batida) ===== */
 const rr = (c, x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
 const Tricks = (() => {
-  const MSG = ['Vem comigo, tenho um prêmio!', 'Rápido, só hoje!', 'Aqui é melhor, entra!', 'Confia em mim!'];
+  const MSG = ['Oi! Vem comigo, tenho um prêmio só para você!', 'Corre, essa chance é só de hoje!', 'Aqui dentro é muito melhor, entra!', 'Todo mundo já entrou, só falta você!', 'Confia em mim, eu sou seu amigo!'];
   const mk = (a, type, x, w, h, src, extra) => a.spawn(Object.assign({ type, x, w, h, b: 0, src }, extra));
   const gift = (a, x, label) => mk(a, 'gift', x, 36, 36, 'gift', { label });
-  const wall = (a, x, src) => mk(a, 'wall', x, 40, 122, src);   // mais alta que qualquer pulo
+  // Cerca baixa e larga demais para ser pulada: parece possível, mas não é.
+  const fence = (a, x, src) => { const w = Math.round(a.v() * 0.62 + 150); mk(a, 'fence', x, w, 44, src); return w; };
   const door = (a, x, label) => mk(a, 'door', x, 46, 114, 'friend', { label });
+  const passed = (a, L, o) => o.x + o.w < L.dist + a.PX - 14;
 
   // ---------- 0: presente que era armadilha ----------
   const GIFT = {
-    init(a, L) { L.g = { stage: 0, next: 3, watch: null, forced: false }; },
+    init(a, L) { const n = a.rand(7, 10); L.g = { stage: 0, next: n, watch: null, force: n + a.rand(5, 7), n1: Math.random() < 0.5 ? 2 : 3 }; },
     update(a, L) {
       const G = L.g, v = a.v();
-      if (G.watch && G.watch.x + G.watch.w < L.dist + a.PX - 14) { G.watch = null; G.next = L.t + 0.6; } // desviou: vem mais
+      if (G.watch && passed(a, L, G.watch)) { G.watch = null; G.next = L.t + a.rand(0.5, 1.2); } // desviou: vem mais
       if (G.stage >= 3 || G.watch) return;
-      const force = L.t >= 11 && !G.forced && G.stage < 2;
-      if (force) { G.stage = 2; G.forced = true; }
+      const force = L.t >= G.force && G.stage < 2;
+      if (force) G.stage = 2;
       if (L.t < G.next && !force) return;
       const x = a.safeX(120);
       if (G.stage === 0) { G.watch = gift(a, x, true); a.reserve(x + 40); }
-      else if (G.stage === 1) { gift(a, x, true); G.watch = gift(a, x + 38); a.reserve(x + 80); }
+      else if (G.stage === 1) { for (let i = 0; i < G.n1; i++) { const o = gift(a, x + i * 38, i === 0); if (i === G.n1 - 1) G.watch = o; } a.reserve(x + G.n1 * 38 + 40); }
       else { const n = Math.ceil((v * a.AIR + 170) / 38); for (let i = 0; i < n; i++) gift(a, x + i * 38, i === 0); a.reserve(x + n * 38); }
       G.stage++;
     }
@@ -147,7 +267,7 @@ const Tricks = (() => {
     p.bx.x = p.x + p.w - 22; p.bx.y = p.y + 9; A.pops.push(p);
   };
   const AD = {
-    init(a, L) { L.ad = { pops: [], next: 4, n: 0, seq: false }; },
+    init(a, L) { L.ad = { pops: [], next: a.rand(7, 11), n: 0, seq: false }; },
     update(a, L) {
       const A = L.ad, n0 = A.pops.length;
       A.pops = A.pops.filter(p => L.t - p.born < 7);
@@ -157,7 +277,7 @@ const Tricks = (() => {
         if (!A.seq) { // o que vem pela frente fica escondido atrás do anúncio
           A.seq = true; const v = a.v(), x = a.safeX(130);
           mk(a, 'cactus', x, 26, 44, 'ad'); mk(a, 'bird', x + v * 0.75, 40, 28, 'ad', { b: 34 });
-          const w1 = x + v * 1.45; wall(a, w1, 'ad'); wall(a, w1 + v * 0.55, 'ad'); a.reserve(w1 + v * 0.55 + 40);
+          const w1 = x + v * 1.45, w = fence(a, w1, 'ad'); a.reserve(w1 + w + 40);
         }
       }
     },
@@ -168,7 +288,7 @@ const Tricks = (() => {
         c.lineWidth = 4; c.strokeStyle = '#ff3b6b'; rr(c, p.x, p.y, p.w, p.h, 14); c.stroke();
         c.fillStyle = '#ff3b6b'; rr(c, p.x + 2, p.y + 2, p.w - 4, 30, 12); c.fill();
         c.fillStyle = '#fff'; c.font = 'bold 13px sans-serif'; c.textAlign = 'left'; c.fillText('ANÚNCIO', p.x + 14, p.y + 22);
-        c.fillStyle = '#1d1b4b'; c.textAlign = 'center'; c.font = 'bold 32px Fredoka, sans-serif'; c.fillText('🎉 PARABÉNS! 🎉', p.x + p.w / 2, p.y + 82);
+        c.fillStyle = '#1d1b4b'; c.textAlign = 'center'; c.font = 'bold 32px Fredoka, sans-serif'; c.fillText('PARABÉNS!', p.x + p.w / 2, p.y + 82);
         c.font = '500 19px Fredoka, sans-serif'; c.fillText('Você é o visitante número 1.000.000!', p.x + p.w / 2, p.y + 114);
         c.fillStyle = '#16a34a'; rr(c, p.x + p.w / 2 - 120, p.y + 134, 240, 46, 12); c.fill();
         c.fillStyle = '#fff'; c.font = 'bold 21px Fredoka, sans-serif'; c.fillText('RESGATAR PRÊMIO', p.x + p.w / 2, p.y + 165);
@@ -203,44 +323,57 @@ const Tricks = (() => {
     }
   };
 
-  // ---------- 2: bicho gigante ----------
+  // ---------- 2: bicho (filhote pulável, depois o gigante que vai crescendo) ----------
   const GIANT = {
-    init(a, L) { L.b = { done: false }; },
+    init(a, L) { L.b = { stage: 0, t0: a.rand(7, 11), cub: null, next: 0 }; },
     update(a, L) {
-      if (!L.b.done && L.t >= 4.2) { const x = a.safeX(150); mk(a, 'giant', x, 150, 168, 'giant'); a.reserve(x + 150); L.b.done = true; }
+      const B = L.b;
+      if (B.stage === 0 && L.t >= B.t0) { const x = a.safeX(130); B.cub = mk(a, 'cub', x, 34, 38, 'giant'); a.reserve(x + 40); B.stage = 1; }
+      else if (B.stage === 1 && passed(a, L, B.cub)) { B.stage = 2; B.next = L.t + a.rand(0.5, 1.1); }
+      else if (B.stage === 2 && L.t >= B.next) { const x = a.safeX(150); mk(a, 'giant', x, 150, 168, 'giant'); a.reserve(x + 150); B.stage = 3; }
     }
   };
 
   // ---------- 3: "amigo" com portas ----------
   const FRIEND = {
-    init(a, L) { L.f = { step: 0, msg: 0, msgT: 0.8 }; },
+    init(a, L) {
+      const t0 = a.rand(7, 11);
+      L.f = { show: Math.max(1, t0 - 4.5), msg: 0, msgT: 0, mS: 0, left: Math.random() < 0.5 ? 1 : 2, next: t0, pair: false };
+    },
     update(a, L) {
       const F = L.f;
-      if (L.t >= F.msgT) { F.msg = (F.msg + 1) % MSG.length; F.msgT = L.t + 2.2; }
-      if (F.step === 0 && L.t >= 3) { const x = a.safeX(110); door(a, x, true); a.reserve(x + 46); F.step = 1; }
-      else if (F.step === 1 && L.t >= 6 && !L.obs.some(o => o.src === 'friend' && o.x + o.w > L.dist)) {
-        const x = a.safeX(110), d = a.v() * 0.55; door(a, x, true); door(a, x + d); a.reserve(x + d + 46); F.step = 2;
-      }
+      if (L.t >= F.show && L.t >= F.msgT) { if (F.msgT > 0) F.msg = (F.msg + 1) % MSG.length; F.msgT = L.t + 5; F.mS = L.t; }
+      const ahead = L.obs.some(o => o.src === 'friend' && o.x + o.w > L.dist + a.PX - 10);
+      if (ahead || L.t < F.next) return;
+      if (F.left > 0) { const x = a.safeX(110); door(a, x, true); a.reserve(x + 46); F.left--; F.next = L.t + a.rand(0.8, 1.5); }
+      else if (!F.pair) { const x = a.safeX(110), d = a.v() * 0.55; door(a, x, true); door(a, x + d); a.reserve(x + d + 46); F.pair = true; }
     },
     draw(a, L) {
-      const c = a.ctx, F = L.f, fx = a.PX + 150, fy = 74 + Math.sin(L.t * 3) * 6;
-      c.save(); c.globalAlpha = 0.95; a.emo('😎', 46, fx, fy + 16); c.restore();
-      const txt = MSG[F.msg]; c.font = 'bold 16px Fredoka, sans-serif'; const w = c.measureText(txt).width + 26;
-      c.fillStyle = '#fff'; c.strokeStyle = '#7c3aed'; c.lineWidth = 3; rr(c, fx + 34, fy - 26, w, 36, 12); c.fill(); c.stroke();
-      c.fillStyle = '#4c1d95'; c.textAlign = 'left'; c.fillText(txt, fx + 47, fy - 3);
+      const c = a.ctx, F = L.f;
+      if (L.t < F.show) return;
+      const bob = Math.sin(L.t * 3) * 3, bx = 150, by = 38, bw = 600, bh = 78;
+      a.px('friend', 78, 112 + bob, 70, Math.floor(L.t * 3) % 2);
+      c.fillStyle = '#fff'; c.strokeStyle = '#7c3aed'; c.lineWidth = 4; rr(c, bx, by, bw, bh, 16); c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(bx + 2, by + 38); c.lineTo(bx - 16, by + 52); c.lineTo(bx + 2, by + 58); c.closePath(); c.fill(); c.stroke();
+      const full = MSG[F.msg], shown = full.slice(0, Math.max(1, Math.floor((L.t - F.mS) * 28)));
+      c.fillStyle = '#7c3aed'; c.font = 'bold 13px Fredoka, sans-serif'; c.textAlign = 'left'; c.fillText('Seu "amigo" diz:', bx + 20, by + 22);
+      c.fillStyle = '#4c1d95'; c.font = 'bold 25px Fredoka, sans-serif';
+      const words = shown.split(' '); let line = '', y = by + 52; const maxW = bw - 40, lines = [];
+      for (const w of words) { const t = line ? line + ' ' + w : w; if (c.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+      lines.push(line); lines.forEach((ln, i) => c.fillText(ln, bx + 20, y + i * 28 - (lines.length > 1 ? 6 : 0)));
     }
   };
 
   // ---------- 4: linha de chegada que foge (depois acelera e enche de obstáculos) ----------
   const LINE = {
-    init(a, L) { L.l = { x: null, flee: 0, wall: false }; L.ramp = 0; },
+    init(a, L) { L.l = { x: null, flee: 0, fence: false, start: a.rand(3, 6) }; L.ramp = 0; },
     update(a, L, dt) {
       const S = L.l;
-      if (S.x === null && L.t >= 1.2) S.x = L.dist + 1000;
+      if (S.x === null && L.t >= S.start) S.x = L.dist + 1000;
       if (S.x === null) return;
       if (S.x - L.dist < 330) { S.flee += dt; S.x += a.base(L.t) * 2.2 * dt; }
       if (S.flee >= 2.8) { L.ramp = Math.min(1, L.ramp + dt / 2.5); L.mul = 1 + 0.7 * L.ramp; L.gapMul = 1 - 0.5 * L.ramp; L.rampSrc = 'line'; }
-      if (S.flee >= 4.6 && !S.wall) { S.wall = true; const x = a.safeX(110), d = a.v() * 0.55; wall(a, x, 'line'); wall(a, x + d, 'line'); a.reserve(x + d + 40); }
+      if (S.flee >= 4.6 && !S.fence) { S.fence = true; const x = a.safeX(110), w = fence(a, x, 'line'); a.reserve(x + w + 40); }
     },
     draw(a, L) {
       const c = a.ctx, S = L.l;
@@ -277,7 +410,7 @@ const Runner = (() => {
     let S = { mode: 'idle', cfg: {}, lap: { t: 0, dist: 0, y: 0, vy: 0, obs: [] } }, raf = 0, lastT = 0, lastEmit = 0, duck = false;
     const emo = (ch, size, x, y, al) => { c.font = size + 'px ' + FONT; c.textAlign = al || 'center'; c.textBaseline = 'alphabetic'; c.fillText(ch, x, y); };
     const txt = (s, x, y, size, color, al, w) => { c.font = (w || 'bold') + ' ' + size + 'px Fredoka, sans-serif'; c.fillStyle = color; c.textAlign = al || 'center'; c.textBaseline = 'alphabetic'; c.fillText(s, x, y); };
-    const A = { W, H, GROUND, PX, AIR, rand, pick, base, ctx: c, emo,
+    const A = { W, H, GROUND, PX, AIR, rand, pick, base, ctx: c, emo, px: (n, x, by, h, f) => Pix.draw(c, n, x, by, h, f),
       v: () => base(S.lap.t) * S.lap.mul,
       spawn: o => { S.lap.obs.push(o); return o; },
       farEnd: () => S.lap.obs.reduce((m, o) => Math.max(m, o.x + o.w), S.lap.dist + PX),
@@ -336,34 +469,33 @@ const Runner = (() => {
     function drawObs(o, L) {
       const sx = PX + (o.x - L.dist); if (sx > W + 260 || sx + o.w < -260) return;
       const gy = GROUND - o.b;
-      if (o.type === 'cactus') emo('🌵', o.h * 1.25, sx + o.w / 2, gy + 4);
-      else if (o.type === 'big') emo('🌲', o.h * 1.2, sx + o.w / 2, gy + 4);
-      else if (o.type === 'dbl') { emo('🌵', 50, sx + 13, gy + 4); emo('🌵', 50, sx + o.w - 13, gy + 4); }
-      else if (o.type === 'bird') emo('🦅', 44, sx + o.w / 2, gy + 6);
+      const P = (n, x, by, h, f) => Pix.draw(c, n, x, by, h, f);
+      if (o.type === 'cactus') P('cactus', sx + o.w / 2, gy + 2, o.h + 4);
+      else if (o.type === 'big') P('pine', sx + o.w / 2, gy + 2, o.h + 4);
+      else if (o.type === 'dbl') { P('cactus', sx + 13, gy + 2, 48); P('cactus', sx + o.w - 13, gy + 2, 48); }
+      else if (o.type === 'bird') P('bird' + (Math.floor(L.t * 6) % 2), sx + o.w / 2, gy + 2, 36);
+      else if (o.type === 'fence') { const n = Math.ceil(o.w / 26); for (let i = 0; i < n; i++) P('cactus', sx + 13 + i * (o.w - 26) / Math.max(1, n - 1), gy + 2, 48 + (i % 2) * 4); }
+      else if (o.type === 'cub') P('bear', sx + o.w / 2, gy + 2, o.h + 6);
       else if (o.type === 'gift') {
         c.fillStyle = 'rgba(255,210,63,.55)'; c.beginPath(); c.arc(sx + 18, gy - 18, 29 + Math.sin(L.t * 8) * 3, 0, 7); c.fill();
-        emo('🎁', 42, sx + 18, gy + 4);
+        P('gift', sx + 18, gy + 2, 40);
         if (o.label) { c.fillStyle = '#ffd23f'; rr(c, sx - 20, gy - 74, 78, 24, 8); c.fill(); txt('GRÁTIS!', sx + 19, gy - 56, 15, '#b91c1c'); }
-      } else if (o.type === 'giant') { emo('🐻', 205, sx + o.w / 2, gy + 22); txt('GRRR!', sx + o.w / 2, gy - 178, 24, '#b91c1c'); }
-      else if (o.type === 'door') {
-        c.save(); c.shadowColor = '#ffd23f'; c.shadowBlur = 16; c.fillStyle = '#8b5a2b'; rr(c, sx, gy - o.h, o.w, o.h, 7); c.fill(); c.restore();
-        c.fillStyle = '#b9814a'; rr(c, sx + 6, gy - o.h + 8, o.w - 12, o.h - 16, 4); c.fill();
-        c.fillStyle = '#ffd23f'; c.beginPath(); c.arc(sx + o.w - 11, gy - o.h / 2, 4.5, 0, 7); c.fill();
+      } else if (o.type === 'giant') {
+        const k = Math.max(0.45, Math.min(1, 1.25 - sx / 900)); // vai crescendo conforme chega perto
+        P('bear', sx + o.w / 2, gy + 6, 200 * k); if (k > 0.9) txt('GRRR!', sx + o.w / 2, gy - 185, 24, '#b91c1c');
+      } else if (o.type === 'door') {
+        c.save(); c.shadowColor = '#ffd23f'; c.shadowBlur = 16; P('door', sx + o.w / 2, gy + 2, o.h + 2); c.restore();
         if (o.label) { c.fillStyle = '#7c3aed'; rr(c, sx - 14, gy - o.h - 28, 74, 22, 8); c.fill(); txt('ENTRE!', sx + o.w / 2, gy - o.h - 12, 14, '#fff'); }
-      } else if (o.type === 'wall') {
-        c.fillStyle = '#6b7280'; c.fillRect(sx, gy - o.h, o.w, o.h);
-        c.strokeStyle = '#374151'; c.lineWidth = 2;
-        for (let y = gy - o.h + 18; y < gy; y += 18) { c.beginPath(); c.moveTo(sx, y); c.lineTo(sx + o.w, y); c.stroke(); }
-        c.strokeRect(sx, gy - o.h, o.w, o.h);
       }
     }
     function drawPlayer(L) {
       const y = GROUND - L.y, x = PX + PWID / 2;
       c.fillStyle = 'rgba(30,27,75,.18)'; c.beginPath(); c.ellipse(x, GROUND + 3, 22 - Math.min(14, L.y / 8), 5, 0, 0, 7); c.fill();
       c.save();
-      if (S.mode === 'dead') { c.translate(x, y); c.rotate(1.4); emo(S.cfg.avatar, 50, 0, 0); }
-      else if (duck && L.y === 0) { c.translate(x, y + 6); c.scale(1.2, 0.6); emo(S.cfg.avatar, 50, 0, 0); }
-      else emo(S.cfg.avatar, 52, x, y + 6 + (L.y === 0 ? -Math.abs(Math.sin(L.dist / 28)) * 3 : 0));
+      const av = S.cfg.avatar, fr = L.y === 0 ? Math.floor(L.dist / 38) % 2 : 0;
+      if (S.mode === 'dead') { c.translate(x, y - 26); c.rotate(1.4); Pix.draw(c, av, 0, 26, 54, 0); }
+      else if (duck && L.y === 0) { c.translate(x, y + 2); c.scale(1.25, 0.58); Pix.draw(c, av, 0, 0, 54, fr); }
+      else Pix.draw(c, av, x, y + 2, 54, fr);
       c.restore();
     }
     function drawHud(L) {
@@ -371,12 +503,12 @@ const Runner = (() => {
       if (cfg.kind !== 'practice') {
         c.fillStyle = 'rgba(30,27,75,.2)'; rr(c, 150, 12, 600, 9, 4); c.fill();
         c.fillStyle = '#5a3fe0'; rr(c, 150, 12, Math.max(6, 600 * p), 9, 4); c.fill();
-        emo('🏁', 20, 770, 26); emo(cfg.avatar, 18, 150 + 600 * p, 30);
+        Pix.draw(c, 'flag', 770, 30, 22); Pix.draw(c, cfg.avatar, 150 + 600 * p, 33, 20, Math.floor(Date.now() / 200) % 2);
       } else txt('TREINO: pule os obstáculos e se acostume com os controles', W / 2, 22, 15, '#4c3fb8');
-      txt('💥 ' + (S.crashes || 0), 14, 24, 17, '#1d1b4b', 'left');
+      txt('Batidas: ' + (S.crashes || 0), 14, 24, 17, '#1d1b4b', 'left');
       if (cfg.endAt && cfg.kind !== 'practice') {
         const left = cfg.kind === 'final' ? Date.now() - cfg.startAt : cfg.endAt - Date.now(), s = Math.max(0, Math.floor(left / 1000));
-        txt('⏱ ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'), W - 14, 24, 17, '#1d1b4b', 'right');
+        txt('Tempo ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'), W - 14, 24, 17, '#1d1b4b', 'right');
       }
     }
     function overlay(msg, sub, color) {
@@ -389,8 +521,8 @@ const Runner = (() => {
       if (S.shake > 0) c.translate(Math.sin(performance.now() / 20) * 6 * S.shake * 2, 0);
       const g = c.createLinearGradient(0, 0, 0, GROUND); g.addColorStop(0, '#cfdcff'); g.addColorStop(1, '#f3f6ff');
       c.fillStyle = g; c.fillRect(-20, 0, W + 40, GROUND);
-      c.globalAlpha = 0.8; c.fillStyle = '#000';
-      for (let i = 0; i < 5; i++) emo('☁️', 38 + (i % 3) * 10, ((i * 230 - L.dist * 0.12) % 1150 + 1150) % 1150 - 100, 78 + (i % 2) * 36);
+      c.globalAlpha = 0.9;
+      for (let i = 0; i < 5; i++) Pix.draw(c, 'cloud', ((i * 230 - L.dist * 0.12) % 1150 + 1150) % 1150 - 100, 70 + (i % 2) * 36, 30 + (i % 3) * 6);
       c.globalAlpha = 1;
       c.fillStyle = '#a79af0'; c.fillRect(-20, GROUND + 3, W + 40, H - GROUND);
       c.strokeStyle = '#3c2fa5'; c.lineWidth = 3; c.beginPath(); c.moveTo(-20, GROUND + 2); c.lineTo(W + 20, GROUND + 2); c.stroke();
@@ -407,7 +539,7 @@ const Runner = (() => {
       drawHud(L);
       if (S.mode === 'count') { const n = Math.ceil((cfg.startAt - Date.now()) / 1000); overlay(n > 0 ? String(n) : 'JÁ!', 'Prepare-se! Espaço ou ↑ pula, ↓ abaixa'); }
       else if (S.mode === 'dead') overlay('Ops!', 'Voltando para o início…', '#ffd23f');
-      else if (S.mode === 'done') overlay('🏁 Você chegou!', 'Torça pelos colegas que ainda estão correndo', '#86efac');
+      else if (S.mode === 'done') overlay('Você chegou!', 'Torça pelos colegas que ainda estão correndo', '#86efac');
       else if (S.mode === 'over') overlay(S.over || 'Tempo!', '', '#fff');
     }
     function loop(ts) {
@@ -483,8 +615,8 @@ function renderStrip() {
   if (lane.dataset.n !== String(S.team.length)) { lane.dataset.n = S.team.length; lane.innerHTML = ''; }
   S.team.forEach((t, i) => {
     let d = lane.querySelector('[data-av="' + t.av + '"]');
-    if (!d) { d = document.createElement('div'); d.className = 'mate' + (t.av === me ? ' me' : ''); d.dataset.av = t.av; d.dataset.c = t.c; d.innerHTML = t.av + '<i></i>'; lane.appendChild(d); }
-    d.style.left = `calc(${t.p * 100}% - ${t.p * 28}px)`; d.style.top = (i % 3) * 22 + 'px';
+    if (!d) { d = document.createElement('div'); d.className = 'mate' + (t.av === me ? ' me' : ''); d.dataset.av = t.av; d.dataset.c = t.c; d.innerHTML = Pix.img(t.av, 28) + '<i></i>'; lane.appendChild(d); }
+    d.style.left = `calc(${t.p * 100}% - ${t.p * 28}px)`; d.style.top = (i % 3) * 30 + 'px';
     if (+d.dataset.c !== t.c) { d.dataset.c = t.c; d.classList.remove('hit'); void d.offsetWidth; d.classList.add('hit'); }
   });
 }
@@ -514,15 +646,15 @@ function gameSync() {
     curRun = S.runId;
     const loc = Date.now() + (S.startAt - S.now), trick = S.kind === 'trick' ? S.me.trick : null;
     if (Date.now() > loc + S.dur) { R.stop('Tempo!'); return; }
-    if (S.kind === 'trick' && trick == null) { curRun = -3; R.start({ avatar: myAv, trick: null, kind: 'practice', L: 1e9, startAt: Date.now() }); return; }
-    R.start({ avatar: myAv, trick, kind: S.kind, L: S.kind === 'final' ? 60000 : 8000, startAt: loc, endAt: loc + S.dur });
+    if (S.kind === 'trick' && trick == null) { curRun = -3; R.start({ avatar: S.me ? S.me.av : myAv, trick: null, kind: 'practice', L: 1e9, startAt: Date.now() }); return; }
+    R.start({ avatar: S.me ? S.me.av : myAv, trick, kind: S.kind, L: S.kind === 'final' ? 60000 : 12000, startAt: loc, endAt: loc + S.dur });
   } else if (S.phase === 'lobby') {
-    if (curRun !== -2) { curRun = -2; R.start({ avatar: myAv, trick: null, kind: 'practice', L: 1e9, startAt: Date.now() }); }
+    if (curRun !== -2) { curRun = -2; R.start({ avatar: S.me ? S.me.av : myAv, trick: null, kind: 'practice', L: 1e9, startAt: Date.now() }); }
   } else if (curRun !== -9) { curRun = -9; R.stop(); }
 }
 function gameText() {
   let t = '';
-  if (S.phase === 'lobby') t = `<b>Você está dentro, ${myAv}!</b> Treine à vontade. O objetivo do grupo é simples: <b>todos precisam chegar ao final</b>. O Jogo vai tentar impedir. Espere o professor começar.`;
+  if (S.phase === 'lobby') t = `<b>Você está dentro!</b> Treine à vontade. O objetivo do grupo é simples: <b>todos precisam chegar ao final</b>. O Jogo vai tentar impedir. Espere o professor começar.`;
   else if (S.phase === 'run' && S.kind === 'trick' && S.me.trick == null) t = 'Você entrou no meio da rodada. Treine até a próxima começar.';
   else if (S.phase === 'run') t = S.kind === 'final' ? 'Corrida final! Se tudo estiver justo, todos chegam. Vá firme.' : 'Chegue ao final. Pule com espaço ou ↑ e abaixe com ↓.';
   $('gtxt').innerHTML = t;
@@ -531,8 +663,8 @@ function reportHTML() {
   const me = S.me;
   if (me.trick == null) return `<div class="card"><h2>Você entrou no meio da rodada</h2><p>Não deu tempo de viver um truque. Escute os colegas na conversa.</p><div class="act"><button class="btn big" onclick="ready()">Já li</button></div></div>`;
   const T = TRK[me.trick];
-  return `<div class="card no"><div class="big-e">${T.e}</div><h2>O que o Jogo fez com você: ${T.n}</h2><p>${T.d}</p>
-    <div class="stats"><span class="stat">💥 ${me.c} ${me.c === 1 ? "batida" : "batidas"}</span><span class="stat">${me.ct} por causa do truque</span><span class="stat">${me.cn} em obstáculos normais</span></div>
+  return `<div class="card no"><div class="big-e">${Pix.img(Pix.icon(me.trick), 72)}</div><h2>O que o Jogo fez com você: ${T.n}</h2><p>${T.d}</p>
+    <div class="stats"><span class="stat">${me.c} ${me.c === 1 ? "batida" : "batidas"}</span><span class="stat">${me.ct} por causa do truque</span><span class="stat">${me.cn} em obstáculos normais</span></div>
     <p class="mut">Seus colegas podem ter vivido algo bem diferente. Na conversa, descubram o que aconteceu com cada um.</p>
     <div class="act" id="rdy"></div></div>`;
 }
@@ -544,7 +676,7 @@ function renderReport() {
 }
 function renderStudent() {
   const me = S.me;
-  if (!me) { show('pick'); const taken = S.team.map(t => t.av); setView('pick', 'p' + taken.join(), `<div class="card"><h1>Escolha seu personagem</h1><p class="mut">Vocês precisam chegar <b>juntos</b> ao final da corrida. O Jogo vai tentar impedir. Não precisa digitar nome.</p>${err ? `<p><b>${err}</b></p>` : ''}<div class="av-pick">${EM.map(e => `<button ${taken.includes(e) ? 'disabled' : ''} onclick="join('${e}')" aria-label="Personagem ${e}">${e}</button>`).join('')}</div></div>`); return; }
+  if (!me) { show('pick'); const taken = S.team.map(t => t.av); setView('pick', 'p' + taken.join(), `<div class="card"><h1>Escolha seu personagem</h1><p class="mut">Vocês precisam chegar <b>juntos</b> ao final da corrida. O Jogo vai tentar impedir. Não precisa digitar nome.</p>${err ? `<p><b>${err}</b></p>` : ''}<div class="av-pick">${EM.map((e, i) => `<button ${taken.includes(e) ? 'disabled' : ''} onclick="join('${e}')" aria-label="Personagem ${i + 1}">${Pix.img(e, 56)}</button>`).join('')}</div></div>`); return; }
   const ph = S.phase, v = { lobby: 'game', run: 'game', report: 'report', discuss: 'discuss', vote: 'vote', result: 'result', end: 'end' }[ph];
   show(v);
   if (v === 'game') { gameSync(); gameText(); renderStrip(); }
@@ -564,14 +696,14 @@ function renderResult() {
   let h;
   if (id < 10) {
     const mine = me.trick === id, left = S.alive.length;
-    h = `<div class="card ok"><h2>✅ Regra aprovada: ${r.t}</h2><div class="big-e">${TRK[id].e}</div><p><b>${TRK[id].n}</b> sumiu do jogo para todo mundo.</p>
+    h = `<div class="card ok"><h2>Regra aprovada: ${r.t}</h2><div class="big-e">${Pix.img(Pix.icon(id), 72)}</div><p><b>${TRK[id].n}</b> sumiu do jogo para todo mundo.</p>
       <p>${mine ? 'Esse era o truque do <b>seu</b> jogo. Agora ele acabou.' : 'Esse não era o seu truque, mas ' + (S.freed === 1 ? 'libertou 1 colega.' : 'libertou ' + S.freed + ' colegas.')}</p>
       <p class="mut">${left ? 'Ainda restam ' + left + ' truque' + (left > 1 ? 's' : '') + '. Eles <b>mudam de alvo</b>: na próxima rodada você pode enfrentar um truque diferente.' : 'Todos os truques sumiram! A próxima é a corrida final.'}</p></div>`;
-  } else h = `<div class="card no"><h2>🤔 Regra aprovada: ${r.t}</h2><p>${r.n}</p><p class="mut">Os truques continuam, mas vão para outros alunos. Na próxima rodada, vocês podem escolher de novo.</p></div>`;
+  } else h = `<div class="card no"><h2>Regra aprovada: ${r.t}</h2><p>${r.n}</p><p class="mut">Os truques continuam, mas vão para outros alunos. Na próxima rodada, vocês podem escolher de novo.</p></div>`;
   setView('result', 'x' + S.runId + id, h + `<div class="card"><h2>Como foi a votação</h2><div class="grid">${tally}</div></div><p class="act mut">Aguarde o professor começar a próxima rodada.</p>`);
 }
 function renderEnd() {
-  if (S.allFin) setView('end', 'win', `<div class="card ok"><h2>🎉 Todos chegaram ao final, juntos!</h2><p><b>As regras que vocês criaram:</b></p><ul>${S.adopted.map(i => `<li><b>${RULES[i].t}.</b> ${RULES[i].k}</li>`).join('')}</ul>${S.skipped ? '<p class="mut">O professor adiantou a corrida final, então alguns truques não chegaram a ser derrubados pela turma.</p>' : ''}<p>Essas regras existem de verdade. É o <b>ECA Digital</b> (Lei 15.211/2025): uma lei que obriga quem cria jogos e redes a proteger crianças e adolescentes, sem tirar o direito de jogar e de usar a internet. A lei não está contra vocês. Ela está do lado de vocês.</p><p class="mut"><b>Para conversar:</b> qual truque foi o mais difícil de perceber? Vocês já viram algum desses em jogos ou aplicativos de verdade?</p></div>`);
+  if (S.allFin) setView('end', 'win', `<div class="card ok"><h2>Todos chegaram ao final, juntos!</h2><p><b>As regras que vocês criaram:</b></p><ul>${S.adopted.map(i => `<li><b>${RULES[i].t}.</b> ${RULES[i].k}</li>`).join('')}</ul>${S.skipped ? '<p class="mut">O professor adiantou a corrida final, então alguns truques não chegaram a ser derrubados pela turma.</p>' : ''}<p>Essas regras existem de verdade. É o <b>ECA Digital</b> (Lei 15.211/2025): uma lei que obriga quem cria jogos e redes a proteger crianças e adolescentes, sem tirar o direito de jogar e de usar a internet. A lei não está contra vocês. Ela está do lado de vocês.</p><p class="mut"><b>Para conversar:</b> qual truque foi o mais difícil de perceber? Vocês já viram algum desses em jogos ou aplicativos de verdade?</p></div>`);
   else setView('end', 'lose' + S.runId, `<div class="card no"><h2>Quase! Nem todos chegaram ao final</h2><p>O tempo acabou antes de todos cruzarem a linha. Conversem: o que aconteceu? O professor pode abrir mais uma tentativa.</p></div>`);
 }
 
@@ -597,8 +729,8 @@ function renderHost() {
   else { ctrl = (S.allFin ? '' : B('again', 'Tentar a corrida final de novo')); tip = S.allFin ? 'Todos chegaram. Feche com a conversa sobre o ECA Digital.' : 'Nem todos chegaram a tempo.'; }
   let extra = '';
   if (ph === 'vote' || ph === 'result') { const c = S.counts || []; extra = `<div class="card"><h2>Votos</h2><div class="grid">${rulesCards(S.cards, ph === 'result' ? S.cards.indexOf(S.res) : -1, false, i => `<div class="bar"><i style="width:${S.n ? c[i] / S.n * 100 : 0}%"></i></div><small>${c[i] || 0} voto${c[i] === 1 ? '' : 's'}</small>`)}</div></div>`; }
-  const rows = S.team.map(t => `<tr><td class="e">${t.av}</td><td>${t.trick != null && ph !== 'lobby' && S.kind !== 'final' ? TRK[t.trick].e + ' ' + TRK[t.trick].n : '—'}</td><td>${stateOf(t)}</td><td>${t.c}</td><td>${Math.round(t.p * 100)}%</td></tr>`).join('');
-  const alive = [0, 1, 2, 3, 4].map(i => S.alive.includes(i) ? `<span class="pill no">${TRK[i].e} ativo</span>` : `<span class="pill ok">${TRK[i].e} removido</span>`).join(' ');
+  const rows = S.team.map(t => `<tr><td class="e">${Pix.img(t.av, 34)}</td><td>${t.trick != null && ph !== 'lobby' && S.kind !== 'final' ? Pix.img(Pix.icon(t.trick), 20) + ' ' + TRK[t.trick].n : '—'}</td><td>${stateOf(t)}</td><td>${t.c}</td><td>${Math.round(t.p * 100)}%</td></tr>`).join('');
+  const alive = [0, 1, 2, 3, 4].map(i => S.alive.includes(i) ? `<span class="pill no">${Pix.img(Pix.icon(i), 18)} ativo</span>` : `<span class="pill ok">${Pix.img(Pix.icon(i), 18)} removido</span>`).join(' ');
   const skip = ['report', 'discuss', 'vote', 'result'].includes(ph) && S.alive.length ? B('finalnow', 'Pular para a corrida final', 'warn') : '';
   $('host').innerHTML = `${off ? '<div class="conn">Sem conexão. Tentando de novo...</div>' : ''}
    <div class="top"><span>Painel do professor</span><span>${lab}${left}</span><span>Rodada ${S.round} · ${S.n} aluno${S.n === 1 ? '' : 's'}</span></div>

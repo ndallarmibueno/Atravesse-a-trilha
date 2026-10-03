@@ -4,7 +4,7 @@ const PIN = process.env.PIN || 'prof', PORT = process.env.PORT || 3000;
 const RUN_MS = +process.env.RUN_MS || 60000;    // duração da corrida com truques
 const CAP_MS = +process.env.CAP_MS || 240000;   // limite da corrida final
 const COUNT_MS = +process.env.COUNT_MS || 3500; // contagem 3-2-1
-const AV = ['🦊','🐼','🐸','🦁','🐙','🦄','🐯','🐵','🐧','🦉','🐢','🐬','🦋','🐨','🐰'];
+const AV = Array.from({ length: 15 }, (_, i) => 'c' + i);
 // truques: 0 presente, 1 anúncio, 2 bicho gigante, 3 amigo, 4 linha que foge (cada regra boa tem o mesmo número do truque)
 const GOOD = [0, 1, 2, 3, 4], BAD = [10, 11, 12, 13, 14, 15];
 const sh = a => a.map(x => [Math.random(), x]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
