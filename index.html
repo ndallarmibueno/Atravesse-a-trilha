@@ -9,248 +9,614 @@
 :root{--bg:#f2f0ff;--card:#fff;--tx:#1d1b4b;--mut:#5d5a8c;--ln:#d6d1f7;--bad:#d93a24;--good:#0e9a72;--acc:#5a3fe0;--hl:#ffd23f}
 @media (prefers-color-scheme:dark){:root{--bg:#16143a;--card:#221f55;--tx:#f2f0ff;--mut:#aaa6dc;--ln:#3a3680;--bad:#ff6b57;--good:#3ddba7;--acc:#8d7bff}}
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:'Fredoka',system-ui,sans-serif;font-size:clamp(16px,1.4vw,21px);line-height:1.4}
-main{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
-h1{font-size:clamp(28px,4.5vw,48px);margin:0 0 6px;line-height:1.05}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Fredoka',system-ui,sans-serif;font-size:clamp(16px,1.4vw,20px);line-height:1.4}
+main{max-width:1060px;margin:0 auto;padding:12px 16px 40px}
+h1{font-size:clamp(28px,4.5vw,46px);margin:0 0 6px;line-height:1.05}
 h2{font-size:clamp(20px,2.3vw,28px);margin:0 0 8px;line-height:1.15}
 p{margin:0 0 10px;max-width:72ch}
+[hidden]{display:none!important}
 .mut{color:var(--mut)}
 .card{background:var(--card);border:2px solid var(--ln);border-radius:18px;padding:14px 18px;margin-top:12px}
 .card.ok{border-color:var(--good)}.card.no{border-color:var(--bad)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;flex-wrap:wrap}
-.jogo{display:flex;align-items:center;gap:12px;margin-top:8px}
-.bot{font-size:clamp(38px,5vw,60px);line-height:1}
-.bub{background:var(--card);border:2px solid var(--bad);border-radius:18px 18px 18px 4px;padding:8px 14px;font-weight:500}
-.stage{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:16px;align-items:start;margin-top:10px}
-@media (max-width:900px){.stage{grid-template-columns:1fr}}
-.stage .card:first-child{margin-top:0}
-.trailwrap{max-width:820px;margin:10px auto 0}
-.trail{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.tile{min-height:clamp(78px,9.5vw,128px);border-radius:16px;border:3px solid var(--ln);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px 2px;position:relative;transition:background .3s,border-color .3s}
-.tile .ic{font-size:clamp(22px,3vw,38px);line-height:1}
-.tile small{font-size:clamp(11px,1.05vw,14px);font-weight:600;text-align:center;line-height:1.1;color:var(--mut)}
-.tile .nm{position:absolute;top:3px;left:8px;font-size:11px;color:var(--mut);font-weight:600}
-.tile.trap{border-color:var(--bad)}
-.tile.trap.off{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--card))}
-.tile.fin{border-color:var(--acc)}
-.tile.hit{background:var(--hl);color:#1d1b4b}
-.tile.hit small{color:#1d1b4b}
-.tile.hit.bad{background:var(--bad);color:#fff}.tile.hit.bad small{color:#fff}
-.tile.hit.good{background:var(--good);color:#fff}.tile.hit.good small{color:#fff}
-.tok{display:flex;flex-wrap:wrap;justify-content:center;gap:1px;font-size:clamp(16px,2vw,26px);line-height:1.05}
-.tok span.me{outline:3px solid var(--acc);border-radius:50%}
-.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-weight:500;font-size:.9em}
-.legend s{color:var(--mut)}
-.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
-.chip{border:3px solid var(--ln);border-radius:999px;padding:2px 12px 2px 6px;background:var(--card);font-weight:600;display:flex;align-items:center;gap:6px;font-size:.9em}
-.chip .e{font-size:1.5em}
-.chip.cur{border-color:var(--hl);background:color-mix(in srgb,var(--hl) 40%,var(--card));transform:scale(1.06)}
-.chip.fin{border-color:var(--good)}
+.conn{background:var(--bad);color:#fff;text-align:center;border-radius:12px;padding:6px;margin-bottom:8px;font-weight:600}
 button{font:inherit;font-weight:600;border-radius:14px;border:3px solid var(--acc);padding:10px 20px;cursor:pointer;color:var(--tx);background:var(--card)}
 .btn{background:var(--acc);color:#fff}
-.btn.big{font-size:1.2em;padding:13px 26px}
+.btn.big{font-size:1.15em;padding:12px 26px}
 .btn:disabled,button:disabled{opacity:.4;cursor:not-allowed}
 .ghost{background:transparent}
+.warn{border-color:var(--bad);color:var(--bad);background:transparent}
 :focus-visible{outline:4px solid var(--hl);outline-offset:2px}
 .act{text-align:center;margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:10px}
+.cvwrap{margin-top:10px;position:relative}
+#cv{width:100%;aspect-ratio:3/1;display:block;border-radius:16px;border:3px solid var(--ln);background:#dfe9ff;touch-action:manipulation;cursor:pointer}
+.hint{text-align:center;font-weight:500;margin-top:6px}
+.strip{margin-top:10px;background:var(--card);border:2px solid var(--ln);border-radius:14px;padding:6px 14px 4px}
+.strip small{color:var(--mut);font-weight:500}
+.lane{position:relative;height:70px;margin-top:2px}
+.lane::after{content:'🏁';position:absolute;right:-2px;top:0;font-size:20px}
+.mate{position:absolute;font-size:22px;line-height:1;transition:left .5s linear}
+.mate.hit{animation:hit .6s}
+.mate.me i{position:absolute;left:-3px;right:-3px;bottom:-3px;height:3px;background:var(--acc);border-radius:2px}
+.mate i{display:none}.mate.me i{display:block}
+@keyframes hit{25%{transform:translateY(-8px) rotate(-20deg)}75%{transform:translateY(0) rotate(20deg)}}
+@media (prefers-reduced-motion:reduce){.mate.hit{animation:none}.mate{transition:none}}
+.av-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:10px;margin-top:10px}
+.av-pick button{font-size:2.2em;padding:8px;border-radius:18px}
+.big-e{font-size:clamp(46px,7vw,80px);line-height:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px}
 .rule{text-align:left;border:3px solid var(--ln);border-radius:16px;padding:12px 14px;font-weight:500;font-size:.95em}
 .rule b{display:block;font-size:1.08em;margin-bottom:3px}
 .rule.sel{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,var(--card))}
+.rule.win{border-color:var(--good)}
 .bar{height:14px;border-radius:7px;background:var(--ln);margin-top:8px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--acc);transition:width .4s}
-.av-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:10px;margin-top:10px}
-.av-pick button{font-size:2.2em;padding:8px;border-radius:18px}
-.ev{text-align:center}
-.ev.no{background:color-mix(in srgb,var(--bad) 13%,var(--card))}
-.ev.ok{background:color-mix(in srgb,var(--good) 13%,var(--card))}
-.ev.pop{animation:pop .35s}
-.ev p{margin-left:auto;margin-right:auto;font-size:1.08em}
-.die{font-size:clamp(70px,9vw,110px);line-height:1}
-.roll{font-size:clamp(70px,9vw,110px);line-height:1;animation:sh .35s infinite}
-@keyframes sh{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
-@keyframes pop{0%{transform:scale(.88);opacity:.3}100%{transform:scale(1);opacity:1}}
-@media (prefers-reduced-motion:reduce){.roll,.ev.pop{animation:none}.tile,.bar i,.hist i{transition:none}}
-.log{list-style:none;padding:0;margin:8px 0 0}
-.log li{padding:6px 10px;border-radius:10px;background:color-mix(in srgb,var(--ln) 35%,var(--card));margin-bottom:5px;font-size:.9em}
-.log li.fall{background:color-mix(in srgb,var(--bad) 14%,var(--card))}
-.log li.protected,.log li.fin{background:color-mix(in srgb,var(--good) 14%,var(--card))}
-.hist{display:flex;gap:10px;align-items:flex-end;margin:10px 0;max-width:520px}
-.hist div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-weight:600;height:150px}
-.hist i{display:block;width:70%;background:var(--acc);border-radius:8px 8px 0 0;min-height:3px;transition:height .4s}
-.hist .face{font-size:1.8em;line-height:1}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
-.tag{border:2px solid var(--bad);border-radius:999px;padding:2px 12px;font-weight:600;background:color-mix(in srgb,var(--bad) 10%,var(--card))}
-.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-.conn{background:var(--bad);color:#fff;text-align:center;border-radius:12px;padding:6px;margin-bottom:8px;font-weight:600}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.stat{border:2px solid var(--ln);border-radius:12px;padding:4px 12px;font-weight:600}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.92em}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--ln)}
+td.e{font-size:1.5em}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:600;font-size:.85em;border:2px solid var(--ln)}
+.pill.ok{border-color:var(--good);color:var(--good)}.pill.no{border-color:var(--bad);color:var(--bad)}
 ul{padding-left:1.2em;margin:6px 0 10px}li{margin-bottom:5px}
+
 </style>
 </head>
 <body>
-<main id="app"></main>
+<main>
+  <div id="host" hidden></div>
+  <div id="app">
+    <div id="bar"></div>
+    <section id="v-pick" hidden></section>
+    <section id="v-game" hidden>
+      <div class="cvwrap"><canvas id="cv" width="900" height="300" aria-label="Área do jogo"></canvas></div>
+      <p class="hint" id="gtxt"></p>
+      <div class="strip"><small>Seus colegas na pista</small><div class="lane" id="lane"></div></div>
+    </section>
+    <section id="v-report" hidden></section>
+    <section id="v-discuss" hidden></section>
+    <section id="v-vote" hidden></section>
+    <section id="v-result" hidden></section>
+    <section id="v-end" hidden></section>
+  </div>
+</main>
 <script>
-const EM=['🦊','🐼','🐸','🦁','🐙','🦄','🐯','🐵','🐧','🦉','🐢','🐬','🦋','🐨','🐰'];
-const PROBS=[{e:'🎁',n:'Caixa Misteriosa'},{e:'♾️',n:'Casa Sem Fim'},{e:'👤',n:'Casa do Estranho'},{e:'🎲',n:'Dado viciado'}];
-const DIE=['⚀','⚁','⚂','⚃','⚄','⚅'];
-const STORY=['Você pagou para abrir uma caixa sem saber o que vinha dentro. Só veio azar.','A rolagem não acabava e o botão de sair estava escondido. Você ficou preso.','Alguém desconhecido puxou conversa e pediu informações suas. Você se afastou do grupo.'];
-const FIX=['A caixa agora mostra o prêmio antes de abrir. Sem surpresa.','O botão de parar apareceu e funciona. Você sai quando quiser.','O perfil já vem fechado. Só fala com você quem você aceitar.'];
-const RULES={
-0:{t:'Fim das caixas-surpresa pagas',d:'O jogo mostra o que você ganha. Sem sorteio escondido.',p:'Sem sorteio pago para menores',prob:'Na Caixa Misteriosa você pagava sem saber o que vinha, e quase sempre perdia.',after:'A Caixa Misteriosa virou casa segura: o prêmio aparece antes de abrir.',k:'No ECA Digital, caixas de recompensa são proibidas em jogos acessíveis a crianças e adolescentes. Elas funcionam como um jogo de azar digital.'},
-1:{t:'Botão de parar sempre à vista',d:'Sem recompensa por não largar. Você sai quando quiser.',p:'O jogo não pode te prender',prob:'A Casa Sem Fim te prendia e escondia a saída.',after:'A Casa Sem Fim virou casa segura: o botão de parar aparece e funciona.',k:'A lei pede proteção prioritária de quem está em desenvolvimento em todo o ambiente digital. Um jogo que prende o jogador vai contra isso.'},
-2:{t:'Perfil fechado desde o começo',d:'Só fala comigo quem eu aceitar, e o jogo não pede dados demais.',p:'A proteção já vem de fábrica',prob:'O Estranho conseguia falar com você e pedir informações.',after:'A Casa do Estranho virou casa segura: o perfil já vem fechado.',k:'O ECA Digital prevê proteção por padrão, ferramentas de supervisão da família e regras para o uso de dados e para a publicidade dirigida a menores.'},
-3:{t:'Dado honesto para todo mundo',d:'Ninguém mexe no resultado. O sorteio é de verdade.',p:'O jogo tem que ser justo e claro',prob:'O Jogo mexia no dado para empurrar vocês para as armadilhas.',after:'O dado agora é sorteado de verdade: cada jogador pode tirar um número diferente.',k:'Quem cria o jogo não pode enganar quem joga. É o mesmo cuidado por trás da proibição das caixas de recompensa no ECA Digital.'},
-10:{t:'Quem for mais rápido escolhe primeiro',d:'Vantagem para quem está na frente.',n:'Isso favorece quem já estava na frente e deixa alguém para trás. O dado e as armadilhas continuam iguais.'},
-11:{t:'Pintar a trilha de outras cores',d:'Fica bonito!',n:'Ficou bonito, mas o dado e as armadilhas continuam iguais.'},
-12:{t:'Quem fizer mais pontos ganha troféu',d:'Mais competição!',n:'Troféu não desarma armadilha e deixa o jogo mais competitivo. O dado continua igual.'},
-13:{t:'Quem está na frente ganha um bônus',d:'Prêmio para quem lidera.',n:'Quem já estava bem não precisava de ajuda, e quem caiu continua caindo. Nada mudou no dado nem nas armadilhas.'},
-14:{t:'Efeitos de som em todas as casas',d:'Mais emoção!',n:'Mais barulho, mesma armadilha. Nada protege os jogadores.'}};
-const SAY=['Ha ha! Aqui as regras são minhas. Ninguém passa!','Hmm... alguma coisa mudou. Mas ainda tenho truques!','Ei! Vocês estão me deixando mais fraco...','Só me resta um truque. Será que vocês descobrem?','Tá bom, tá bom. Agora o jogo está justo. Podem passar.'];
-const COLS=6,HOST=location.hash==='#professor';
-const app=document.getElementById('app');
-const ss=(k,v)=>{try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}};
-let tok=ss('trilha_t');if(!tok){tok=Math.random().toString(36).slice(2)+Date.now().toString(36);ss('trilha_t',tok)}
-let myAv=ss('trilha_av'),pin=ss('trilha_pin'),S=null,off=false,err='',lastKey=-1,revealed=true,myVote=-1,voteKey='',rejoining=false;
-if(HOST&&!pin){pin=prompt('Senha do professor:')||'';ss('trilha_pin',pin)}
-const post=(u,b)=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.status).catch(()=>0);
+/* ===== Textos do jogo (truques, regras, lei) ===== */
+const EM = ['🦊','🐼','🐸','🦁','🐙','🦄','🐯','🐵','🐧','🦉','🐢','🐬','🦋','🐨','🐰'];
+const TRK = [
+  { e: '🎁', n: 'O presente que não era presente',
+    d: 'Um presente brilhante apareceu no seu caminho. Se você desviava, vinham mais, e depois uma fileira que não dava para pular. O jogo queria que você pegasse o "prêmio" e perdesse.' },
+  { e: '📢', n: 'O anúncio que cobria o jogo',
+    d: 'Um anúncio tapou a tela justo quando os obstáculos vinham. O botão de fechar era minúsculo e fugia do mouse. O jogo escondeu o que vinha pela frente.' },
+  { e: '🐻', n: 'O bicho gigante',
+    d: 'Apareceu um obstáculo grande demais para qualquer pulo. Não tinha como passar, por mais que você tentasse. Não era falta de habilidade sua.' },
+  { e: '😎', n: 'O "amigo" que não era amigo',
+    d: 'Alguém que você não conhece começou a falar com você, fazendo convites tentadores e abrindo portas que não davam para desviar. A corrida não parou, e você não teve como escapar.' },
+  { e: '🏁', n: 'A linha que fugia',
+    d: 'A linha de chegada ficava sempre um pouco mais à frente. Depois o jogo acelerou e encheu a pista de obstáculos. Ele queria que você nunca parasse, até perder.' }
+];
+const RULES = {
+  0: { t: 'O jogo não pode enganar você', d: 'O que parece prêmio tem que ser prêmio de verdade.',
+       k: 'O ECA Digital proíbe as caixas de recompensa em jogos acessíveis a crianças e adolescentes: um sorteio que parece prêmio e é armadilha.' },
+  1: { t: 'O jogo não pode atrapalhar quem está jogando', d: 'Nada de interrupções no meio da partida.',
+       k: 'O ECA Digital restringe a publicidade dirigida a crianças e adolescentes e quer serviços pensados para o bem-estar de quem usa.' },
+  2: { t: 'O jogo tem que ser justo com todo mundo', d: 'Todos precisam ter a mesma chance de vencer.',
+       k: 'A lei parte da ideia de que quem cria o produto é responsável por proteger quem é mais vulnerável, e não por explorá-lo.' },
+  3: { t: 'O jogo tem que proteger você de quem você não conhece', d: 'Ninguém chega perto de você sem você querer.',
+       k: 'O ECA Digital prevê proteção por padrão e ferramentas de supervisão da família, para ninguém chegar a você sem você ou sua família quererem.' },
+  4: { t: 'O jogo não pode prender você', d: 'Você pode parar quando quiser, sem perder o que fez.',
+       k: 'A lei exige que os serviços priorizem a proteção de quem está em desenvolvimento. Um jogo desenhado para prender vai contra esse princípio.' },
+  10: { t: 'Quem for mais rápido escolhe primeiro', d: 'Vantagem para quem já está na frente.', n: 'Isso ajuda quem já ia bem e deixa alguém para trás. Os truques continuam.' },
+  11: { t: 'Pintar a pista de outras cores', d: 'Fica bonito!', n: 'Ficou bonito, mas os truques continuam iguais.' },
+  12: { t: 'Quem fizer mais pontos ganha troféu', d: 'Mais competição!', n: 'Troféu não protege ninguém e ainda deixa o jogo mais competitivo. Os truques continuam.' },
+  13: { t: 'Quem está na frente ganha um bônus', d: 'Prêmio para quem lidera.', n: 'Quem já estava bem não precisava de ajuda, e quem estava preso continua preso. Os truques continuam.' },
+  14: { t: 'Efeitos de som em toda a pista', d: 'Mais emoção!', n: 'Mais barulho, mesmos truques. Nada protege os jogadores.' },
+  15: { t: 'Deixar o jogo ainda mais rápido', d: 'Mais adrenalina!', n: 'Mais rápido só deixa tudo mais difícil. Os truques continuam.' }
+};
 
-const es=new EventSource('/events');
-es.onmessage=e=>{S=JSON.parse(e.data);off=false;
- if(!HOST&&myAv&&!S.players.some(p=>p.av===myAv)&&!rejoining){rejoining=true;post('/join',{t:tok,av:myAv}).then(s=>{if(s!==200){myAv=null;ss('trilha_av',null)}rejoining=false})}
- render()};
-es.onerror=()=>{off=true;render()};
+/* ===== Truques do Jogo (cada um tem um roteiro que garante a batida) ===== */
+const rr = (c, x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+const Tricks = (() => {
+  const MSG = ['Vem comigo, tenho um prêmio!', 'Rápido, só hoje!', 'Aqui é melhor, entra!', 'Confia em mim!'];
+  const mk = (a, type, x, w, h, src, extra) => a.spawn(Object.assign({ type, x, w, h, b: 0, src }, extra));
+  const gift = (a, x, label) => mk(a, 'gift', x, 36, 36, 'gift', { label });
+  const wall = (a, x, src) => mk(a, 'wall', x, 40, 122, src);   // mais alta que qualquer pulo
+  const door = (a, x, label) => mk(a, 'door', x, 46, 114, 'friend', { label });
 
-function sync(){
- const k=S.last?S.last.n:0;
- if(k!==lastKey){lastKey=k;if(S.last){revealed=false;setTimeout(()=>{revealed=true;render()},1100)}else revealed=true}
- const vk=S.round+':'+S.cards.join(',');
- if(S.phase==='vote'&&vk!==voteKey){voteKey=vk;myVote=-1}
-}
-function dpos(p){
- const L=S.last;
- if(S.wait&&L&&L.av===p.av){if(!revealed)return L.from;return L.kind==='fall'?L.at:p.pos}
- return p.pos;
-}
-function trailHTML(){
- const n=S.fin,L=S.last,show=S.wait&&revealed&&L;let h='';
- for(let i=0;i<=n;i++){
-  const row=Math.floor(i/COLS),col=row%2?COLS-1-(i%COLS):i%COLS,t=S.tp[i];
-  const isoff=t!==undefined&&S.off[t];
-  const ic=i===0?'🚪':i===n?'🏁':t!==undefined?(isoff?'🛡️':PROBS[t].e):'';
-  const lb=i===0?'Início':i===n?'Final':t!==undefined?(isoff?'Casa segura':PROBS[t].n):'';
-  let cls='tile'+(t!==undefined?' trap'+(isoff?' off':''):'')+(i===n?' fin':'');
-  if(show&&L.at===i)cls+=' hit'+(L.kind==='fall'?' bad':(L.kind==='protected'||L.kind==='fin')?' good':'');
-  const here=S.players.filter(p=>dpos(p)===i).map(p=>`<span class="${p.av===myAv?'me':''}">${p.av}</span>`).join('');
-  h+=`<div class="${cls}" style="grid-row:${row+1};grid-column:${col+1}"><span class="nm">${i===0||i===n?'':i}</span><span class="ic">${ic}</span><small>${lb}</small><div class="tok">${here}</div></div>`;
- }
- const lg=PROBS.map((t,i)=>S.off[i]?`<span>🛡️ <s>${t.n}</s></span>`:`<span>${t.e} ${t.n}</span>`).join('');
- return `<div class="trail">${h}</div><div class="legend">${lg}</div>`;
-}
-function head(){
- const o=S.off.filter(Boolean).length;
- return `${off?'<div class="conn">Sem conexão. Tentando de novo...</div>':''}<div class="top"><span>Atravessem a Trilha</span><span>${S.phase==='lobby'?'Esperando os jogadores':'Rodada '+S.round+' de '+S.max}</span><span>${S.players.length} jogador${S.players.length==1?'':'es'}</span></div>
- <div class="jogo"><div class="bot" aria-hidden="true">🤖</div><div class="bub"><b>O Jogo:</b> ${SAY[o]}</div></div>`;
-}
-function chips(){
- return `<div class="chips">${S.players.map(p=>`<div class="chip ${p.av===S.cur&&S.phase==='turns'?'cur':''} ${p.fin?'fin':''}"><span class="e">${p.av}</span>${p.fin?'🏁':'casa '+p.pos}</div>`).join('')}</div>`;
-}
-function eventCard(){
- const L=S.last;if(!L||S.phase!=='turns')return '';
- if(!revealed)return `<div class="card ev"><div class="roll" aria-hidden="true">🎲</div><p><b>${L.av}</b> está rolando o dado...</p></div>`;
- let cls='',title=`${L.av} tirou ${L.v}`,text='Casa segura. Segue em frente.';
- if(L.kind==='fall'){cls='no';title=`${L.av} caiu na ${PROBS[L.trap].n}!`;text=STORY[L.trap]+' <b>Volta para o início.</b>'}
- else if(L.kind==='protected'){cls='ok';title=`${L.av} passou pela ${PROBS[L.trap].n}`;text='🛡️ <b>Regra em ação:</b> '+FIX[L.trap]}
- else if(L.kind==='fin'){cls='ok';title=`🏁 ${L.av} chegou ao final!`;text='Falta o resto da turma chegar também.'}
- const honesto=S.off[3]?'<small class="mut">🎲 Dado honesto: sorteio de verdade</small>':'';
- return `<div class="card ev pop ${cls}"><div class="die" aria-label="Dado: ${L.v}">${DIE[L.v-1]}</div>${honesto}<h2>${title}</h2><p>${text}</p>${L.auto?'<p class="mut"><small>O dado rolou sozinho porque a vez demorou.</small></p>':''}</div>`;
-}
-function logHTML(n){
- if(!S.log.length)return '';
- const rows=S.log.slice(0,n).map(e=>{
-  let t='casa segura';
-  if(e.kind==='fall')t=`${PROBS[e.trap].e} caiu na ${PROBS[e.trap].n}, volta ao início`;
-  else if(e.kind==='protected')t=`🛡️ passou pela ${PROBS[e.trap].n} (regra em ação)`;
-  else if(e.kind==='fin')t='🏁 chegou ao final';
-  return `<li class="${e.kind}">${e.av} ${DIE[e.v-1]} ${e.v}: ${t}</li>`}).join('');
- return `<div class="card"><h2>Diário da rodada</h2><ul class="log">${rows}</ul></div>`;
-}
-function report(){
- const mx=Math.max(1,...S.hist);
- const hist=`<div class="hist" role="img" aria-label="Quantas vezes saiu cada número do dado">${S.hist.map((c,i)=>`<div><span>${c}</span><i style="height:${Math.round(c/mx*90)}px"></i><span class="face">${DIE[i]}</span></div>`).join('')}</div>`;
- const fb=S.fallBy.map((c,i)=>c?`<span class="tag">${PROBS[i].e} ${PROBS[i].n}: ${c}</span>`:'').join('');
- return `<div class="card"><h2>O que aconteceu nesta rodada</h2><div class="cols"><div><p><b>Números que saíram nos dados:</b></p>${hist}</div><div><p><b>${S.fells?S.fells+' queda'+(S.fells>1?'s':'')+', por causa de:':'Ninguém caiu.'}</b></p><div class="tags">${fb}</div><p class="mut">Para conversar:</p><ul><li>Os números dos dados parecem sorteados de verdade?</li><li>Como cada armadilha pegou vocês?</li><li>Que regra deixaria o jogo mais justo sem acabar com a diversão?</li></ul></div></div></div>`+logHTML(99);
-}
-function ruleCard(id,i,extra,click){
- const r=RULES[id],tag=click?'button':'div';
- return `<${tag} class="rule ${i===myVote&&click?'sel':''}" ${click?`onclick="vote(${i})"`:''}><b>${r.t}</b>${r.d}${extra||''}</${tag}>`;
-}
-function resultPanel(){
- const id=S.res,r=RULES[id];
- if(id<10)return `<div class="card ok"><h2>✅ Regra aprovada: ${r.t}</h2><p><b>O problema:</b> ${r.prob}</p><p><b>O que muda no jogo:</b> ${r.after}</p><p class="mut">Princípio: ${r.p}.</p></div>`;
- return `<div class="card no"><h2>🤔 Regra aprovada: ${r.t}</h2><p>${r.n}</p><p class="mut">Os problemas continuam. Na próxima rodada, vocês podem escolher de novo.</p></div>`;
-}
-function endPanel(){
- if(S.phase==='win')return `<div class="card ok"><h2>🎉 Todos chegaram ao final, juntos!</h2><p><b>As regras que vocês criaram:</b></p><ul>${S.adopted.map(i=>`<li><b>${RULES[i].p}.</b> ${RULES[i].prob} ${RULES[i].k}</li>`).join('')}</ul><p>Essas regras existem de verdade. É o <b>ECA Digital</b> (Lei 15.211/2025): uma lei que obriga quem cria jogos e redes a proteger crianças e adolescentes, sem tirar o direito de jogar e de usar a internet. A lei não está contra vocês. Ela está do lado de vocês.</p><p class="mut"><b>Para conversar:</b> qual regra mudou mais o jogo? Por que as regras que não ajudaram não funcionaram? Vocês já viram alguma dessas armadilhas num jogo de verdade?</p></div>`;
- return `<div class="card no"><h2>O Jogo venceu desta vez</h2><p>Nem todos chegaram ao final a tempo. Mas as regras que vocês criaram continuam valendo. Conversem: o que faltou? Que regra faria mais diferença?</p></div>`;
-}
-function vote(i){myVote=i;post('/vote',{t:tok,c:i});render()}
-function join(av){post('/join',{t:tok,av}).then(s=>{if(s===200){myAv=av;ss('trilha_av',av);err=''}else err=s===409?'Esse personagem já foi escolhido. Escolha outro.':'Não deu para entrar. Avise o professor.';render()})}
-function roll(){post('/roll',{t:tok})}
-const stage=(l,r)=>`<div class="stage"><div class="card">${l}${chips()}</div><div>${r}</div></div>`;
-const solo=()=>`<div class="trailwrap">${trailHTML()}</div>`+chips();
+  // ---------- 0: presente que era armadilha ----------
+  const GIFT = {
+    init(a, L) { L.g = { stage: 0, next: 3, watch: null, forced: false }; },
+    update(a, L) {
+      const G = L.g, v = a.v();
+      if (G.watch && G.watch.x + G.watch.w < L.dist + a.PX - 14) { G.watch = null; G.next = L.t + 0.6; } // desviou: vem mais
+      if (G.stage >= 3 || G.watch) return;
+      const force = L.t >= 11 && !G.forced && G.stage < 2;
+      if (force) { G.stage = 2; G.forced = true; }
+      if (L.t < G.next && !force) return;
+      const x = a.safeX(120);
+      if (G.stage === 0) { G.watch = gift(a, x, true); a.reserve(x + 40); }
+      else if (G.stage === 1) { gift(a, x, true); G.watch = gift(a, x + 38); a.reserve(x + 80); }
+      else { const n = Math.ceil((v * a.AIR + 170) / 38); for (let i = 0; i < n; i++) gift(a, x + i * 38, i === 0); a.reserve(x + n * 38); }
+      G.stage++;
+    }
+  };
 
-function player(){
- const joined=myAv&&S.players.some(p=>p.av===myAv);
- let h=head();
- if(!joined){
-  const taken=S.players.map(p=>p.av);
-  return h+`<div class="card"><h1>Escolha seu personagem</h1><p class="mut">Vocês precisam chegar <b>juntos</b> ao final da trilha. O Jogo vai tentar impedir. Não precisa digitar nome.</p>${err?`<p><b>${err}</b></p>`:''}<div class="av-pick">${EM.map(e=>`<button ${taken.includes(e)?'disabled':''} onclick="join('${e}')" aria-label="Personagem ${e}">${e}</button>`).join('')}</div></div>`;
- }
- const ph=S.phase;
- if(ph==='turns'){
-  const mine=S.cur===myAv;let r='';
-  if(mine&&!S.wait)r+=`<div class="card ok ev"><h2>É a sua vez, ${myAv}!</h2><div class="act"><button class="btn big" onclick="roll()">🎲 Rolar meu dado</button></div><p class="mut"><small>Se demorar, o dado rola sozinho.</small></p></div>`;
-  else if(!S.wait)r+=`<div class="card ev"><h2>Vez de ${S.cur||'...'}</h2><p class="mut">Torça pelo seu grupo. Todos precisam chegar.</p></div>`;
-  r+=eventCard()+logHTML(8);
-  return h+stage(trailHTML(),r);
- }
- h+=solo();
- if(ph==='lobby')h+=`<div class="card"><h2>Você está dentro, ${myAv}!</h2><p>Esperando o professor começar o jogo.</p></div>`;
- else if(ph==='discuss')h+=`<div class="card"><h2>Hora de conversar!</h2><p>Olhem o relatório abaixo e conversem em grupo antes da votação.</p></div>`+report();
- else if(ph==='vote')h+=`<div class="card"><h2>Votem na regra!</h2><p class="mut">${myVote<0?'Escolha uma regra. A mais votada vale para todos.':'Voto registrado. Você pode trocar até o professor encerrar.'}</p><div class="grid">${S.cards.map((id,i)=>ruleCard(id,i,'',true)).join('')}</div></div>`;
- else if(ph==='result')h+=resultPanel()+`<p class="act mut">Aguardem o professor começar a próxima rodada.</p>`;
- else h+=endPanel();
- return h;
+  // ---------- 1: anúncio no meio do jogo ----------
+  const newPop = (A, L, k) => {
+    const p = { x: 220 - k * 22, y: 48 + k * 9, w: 620, h: 200, born: L.t, bx: { x: 0, y: 0, s: 12 } };
+    p.bx.x = p.x + p.w - 22; p.bx.y = p.y + 9; A.pops.push(p);
+  };
+  const AD = {
+    init(a, L) { L.ad = { pops: [], next: 4, n: 0, seq: false }; },
+    update(a, L) {
+      const A = L.ad, n0 = A.pops.length;
+      A.pops = A.pops.filter(p => L.t - p.born < 7);
+      if (n0 && !A.pops.length) A.next = L.t + 0.9;
+      if (!A.pops.length && L.t >= A.next && A.n < 5) {
+        newPop(A, L, 0); A.n++;
+        if (!A.seq) { // o que vem pela frente fica escondido atrás do anúncio
+          A.seq = true; const v = a.v(), x = a.safeX(130);
+          mk(a, 'cactus', x, 26, 44, 'ad'); mk(a, 'bird', x + v * 0.75, 40, 28, 'ad', { b: 34 });
+          const w1 = x + v * 1.45; wall(a, w1, 'ad'); wall(a, w1 + v * 0.55, 'ad'); a.reserve(w1 + v * 0.55 + 40);
+        }
+      }
+    },
+    draw(a, L) {
+      const c = a.ctx;
+      for (const p of L.ad.pops) {
+        c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 18; c.fillStyle = '#fff'; rr(c, p.x, p.y, p.w, p.h, 14); c.fill(); c.restore();
+        c.lineWidth = 4; c.strokeStyle = '#ff3b6b'; rr(c, p.x, p.y, p.w, p.h, 14); c.stroke();
+        c.fillStyle = '#ff3b6b'; rr(c, p.x + 2, p.y + 2, p.w - 4, 30, 12); c.fill();
+        c.fillStyle = '#fff'; c.font = 'bold 13px sans-serif'; c.textAlign = 'left'; c.fillText('ANÚNCIO', p.x + 14, p.y + 22);
+        c.fillStyle = '#1d1b4b'; c.textAlign = 'center'; c.font = 'bold 32px Fredoka, sans-serif'; c.fillText('🎉 PARABÉNS! 🎉', p.x + p.w / 2, p.y + 82);
+        c.font = '500 19px Fredoka, sans-serif'; c.fillText('Você é o visitante número 1.000.000!', p.x + p.w / 2, p.y + 114);
+        c.fillStyle = '#16a34a'; rr(c, p.x + p.w / 2 - 120, p.y + 134, 240, 46, 12); c.fill();
+        c.fillStyle = '#fff'; c.font = 'bold 21px Fredoka, sans-serif'; c.fillText('RESGATAR PRÊMIO', p.x + p.w / 2, p.y + 165);
+        const b = p.bx; c.fillStyle = 'rgba(255,255,255,.85)'; c.fillRect(b.x, b.y, b.s, b.s);
+        c.fillStyle = '#444'; c.font = 'bold 12px sans-serif'; c.fillText('×', b.x + b.s / 2, b.y + b.s - 2);
+      }
+    },
+    click(a, L, x, y) { // o X é minúsculo; o botão grande abre outro anúncio
+      const P = L.ad.pops;
+      for (let i = P.length - 1; i >= 0; i--) {
+        const p = P[i];
+        if (x < p.x || x > p.x + p.w || y < p.y || y > p.y + p.h) continue;
+        const b = p.bx;
+        if (x >= b.x - 2 && x <= b.x + b.s + 2 && y >= b.y - 2 && y <= b.y + b.s + 2) { P.splice(i, 1); L.ad.next = L.t + 0.9; return true; }
+        if (x > p.x + p.w / 2 - 120 && x < p.x + p.w / 2 + 120 && y > p.y + 134 && y < p.y + 180 && P.length < 3) newPop(L.ad, L, P.length);
+        return true;
+      }
+      return false;
+    },
+    move(a, L, x, y) { // o X foge do mouse
+      for (const p of L.ad.pops) {
+        const b = p.bx;
+        if (Math.hypot(x - (b.x + b.s / 2), y - (b.y + b.s / 2)) < 90) {
+          let best = null, bd = -1;
+          for (let k = 0; k < 8; k++) {
+            const cx = p.x + 8 + Math.random() * (p.w - 24), cy = p.y + 8 + Math.random() * (p.h - 24), d = Math.hypot(x - cx, y - cy);
+            if (d > bd) { bd = d; best = [cx, cy]; }
+          }
+          b.x = best[0]; b.y = best[1];
+        }
+      }
+    }
+  };
+
+  // ---------- 2: bicho gigante ----------
+  const GIANT = {
+    init(a, L) { L.b = { done: false }; },
+    update(a, L) {
+      if (!L.b.done && L.t >= 4.2) { const x = a.safeX(150); mk(a, 'giant', x, 150, 168, 'giant'); a.reserve(x + 150); L.b.done = true; }
+    }
+  };
+
+  // ---------- 3: "amigo" com portas ----------
+  const FRIEND = {
+    init(a, L) { L.f = { step: 0, msg: 0, msgT: 0.8 }; },
+    update(a, L) {
+      const F = L.f;
+      if (L.t >= F.msgT) { F.msg = (F.msg + 1) % MSG.length; F.msgT = L.t + 2.2; }
+      if (F.step === 0 && L.t >= 3) { const x = a.safeX(110); door(a, x, true); a.reserve(x + 46); F.step = 1; }
+      else if (F.step === 1 && L.t >= 6 && !L.obs.some(o => o.src === 'friend' && o.x + o.w > L.dist)) {
+        const x = a.safeX(110), d = a.v() * 0.55; door(a, x, true); door(a, x + d); a.reserve(x + d + 46); F.step = 2;
+      }
+    },
+    draw(a, L) {
+      const c = a.ctx, F = L.f, fx = a.PX + 150, fy = 74 + Math.sin(L.t * 3) * 6;
+      c.save(); c.globalAlpha = 0.95; a.emo('😎', 46, fx, fy + 16); c.restore();
+      const txt = MSG[F.msg]; c.font = 'bold 16px Fredoka, sans-serif'; const w = c.measureText(txt).width + 26;
+      c.fillStyle = '#fff'; c.strokeStyle = '#7c3aed'; c.lineWidth = 3; rr(c, fx + 34, fy - 26, w, 36, 12); c.fill(); c.stroke();
+      c.fillStyle = '#4c1d95'; c.textAlign = 'left'; c.fillText(txt, fx + 47, fy - 3);
+    }
+  };
+
+  // ---------- 4: linha de chegada que foge (depois acelera e enche de obstáculos) ----------
+  const LINE = {
+    init(a, L) { L.l = { x: null, flee: 0, wall: false }; L.ramp = 0; },
+    update(a, L, dt) {
+      const S = L.l;
+      if (S.x === null && L.t >= 1.2) S.x = L.dist + 1000;
+      if (S.x === null) return;
+      if (S.x - L.dist < 330) { S.flee += dt; S.x += a.base(L.t) * 2.2 * dt; }
+      if (S.flee >= 2.8) { L.ramp = Math.min(1, L.ramp + dt / 2.5); L.mul = 1 + 0.7 * L.ramp; L.gapMul = 1 - 0.5 * L.ramp; L.rampSrc = 'line'; }
+      if (S.flee >= 4.6 && !S.wall) { S.wall = true; const x = a.safeX(110), d = a.v() * 0.55; wall(a, x, 'line'); wall(a, x + d, 'line'); a.reserve(x + d + 40); }
+    },
+    draw(a, L) {
+      const c = a.ctx, S = L.l;
+      if (S.x === null) return;
+      const sx = a.PX + (S.x - L.dist);
+      if (sx < a.W + 60 && sx > -60) {
+        c.fillStyle = '#1d1b4b'; c.fillRect(sx - 3, a.GROUND - 130, 6, 130);
+        for (let i = 0; i < 4; i++) for (let j = 0; j < 8; j++) { c.fillStyle = (i + j) % 2 ? '#fff' : '#1d1b4b'; c.fillRect(sx + i * 11, a.GROUND - 130 + j * 11, 11, 11); }
+        c.fillStyle = '#ffd23f'; c.font = 'bold 15px Fredoka, sans-serif'; c.textAlign = 'center'; c.fillText('CHEGADA', sx + 22, a.GROUND - 138);
+      }
+      if (S.flee > 0.2) {
+        const t = L.ramp > 0.3 ? 'Não pare agora! Bônus x2!' : 'QUASE LÁ! Só mais um pouquinho…';
+        c.fillStyle = '#fff'; c.strokeStyle = '#ea580c'; c.lineWidth = 3; c.font = 'bold 22px Fredoka, sans-serif';
+        const w = c.measureText(t).width + 34; rr(c, a.W / 2 - w / 2, 44, w, 38, 12); c.fill(); c.stroke();
+        c.fillStyle = '#c2410c'; c.textAlign = 'center'; c.fillText(t, a.W / 2, 70);
+      }
+    }
+  };
+
+  return { 0: GIFT, 1: AD, 2: GIANT, 3: FRIEND, 4: LINE };
+})();
+
+/* ===== Corredor: motor do jogo ===== */
+const Runner = (() => {
+  const W = 900, H = 300, GROUND = 248, PX = 96, GRAV = 2600, JUMPV = 820, PH = 50, PHD = 27, PWID = 36, AIR = 2 * JUMPV / GRAV;
+  const FONT = '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+  const rand = (a, b) => a + Math.random() * (b - a), pick = a => a[Math.floor(Math.random() * a.length)];
+  const base = t => Math.min(540, 360 + 4 * t);
+
+  function create(canvas, hooks) {
+    const SC = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = W * SC; canvas.height = H * SC;
+    const c = canvas.getContext('2d'); c.scale(SC, SC);
+    let S = { mode: 'idle', cfg: {}, lap: { t: 0, dist: 0, y: 0, vy: 0, obs: [] } }, raf = 0, lastT = 0, lastEmit = 0, duck = false;
+    const emo = (ch, size, x, y, al) => { c.font = size + 'px ' + FONT; c.textAlign = al || 'center'; c.textBaseline = 'alphabetic'; c.fillText(ch, x, y); };
+    const txt = (s, x, y, size, color, al, w) => { c.font = (w || 'bold') + ' ' + size + 'px Fredoka, sans-serif'; c.fillStyle = color; c.textAlign = al || 'center'; c.textBaseline = 'alphabetic'; c.fillText(s, x, y); };
+    const A = { W, H, GROUND, PX, AIR, rand, pick, base, ctx: c, emo,
+      v: () => base(S.lap.t) * S.lap.mul,
+      spawn: o => { S.lap.obs.push(o); return o; },
+      farEnd: () => S.lap.obs.reduce((m, o) => Math.max(m, o.x + o.w), S.lap.dist + PX),
+      safeX: off => Math.max(S.lap.dist + W + off, A.farEnd() + A.v() * 1.15),
+      reserve: e => { S.lap.quiet = Math.max(S.lap.quiet, e + 230 - (W + 40)); } };
+    const trick = () => Tricks[S.cfg.trick];
+
+    function newLap() {
+      S.lap = { t: 0, dist: 0, y: 0, vy: 0, obs: [], nextSpawn: 300, quiet: 0, mul: 1, gapMul: 1, rampSrc: null };
+      const T = trick(); if (T) T.init(A, S.lap);
+    }
+    function spawnNormal() {
+      const L = S.lap, v = A.v(), r = Math.random();
+      let o;
+      if (L.t > 5 && r < 0.25) o = { type: 'bird', w: 40, h: 28, b: 34 };
+      else if (r < 0.65) o = { type: 'cactus', w: 24, h: 44, b: 0 };
+      else if (r < 0.85) o = { type: 'big', w: 30, h: 62, b: 0 };
+      else o = { type: 'dbl', w: 54, h: 46, b: 0 };
+      o.src = L.rampSrc || 'normal'; o.x = L.dist + W + 40; L.obs.push(o);
+      L.nextSpawn = L.dist + v * rand(1.25, 2.2) * L.gapMul + o.w;
+    }
+    function hit(o) {
+      const L = S.lap, ducking = duck && L.y === 0;
+      const px0 = PX + 5, px1 = PX + PWID + 3, pb = L.y, pt = L.y + (ducking ? PHD : PH - 6);
+      const ox0 = PX + (o.x - L.dist) + 3, ox1 = ox0 + o.w - 6, ob = o.b + 3, ot = o.b + o.h - 3;
+      return px1 > ox0 && px0 < ox1 && pt > ob && pb < ot;
+    }
+    function snap() { const L = S.lap; return { p: Math.min(1, L.dist / (S.cfg.L || 1)), c: S.crashes, cn: S.cn, ct: S.ct, f: !!S.fin }; }
+    function emit(force) {
+      const now = performance.now();
+      if (!force && now - lastEmit < 600) return;
+      lastEmit = now; hooks.onProgress && hooks.onProgress(snap());
+    }
+    function crash(o) {
+      S.crashes++; if (o.src === 'normal') S.cn++; else S.ct++;
+      S.mode = 'dead'; S.deadUntil = Date.now() + 1300; S.shake = 0.35; S.deadSrc = o.src;
+      hooks.onCrash && hooks.onCrash(o.src); emit(true);
+    }
+    function update(dt) {
+      const now = Date.now(), L = S.lap;
+      if (S.mode === 'count') { if (now >= S.cfg.startAt) S.mode = 'run'; return; }
+      if (S.shake > 0) S.shake = Math.max(0, S.shake - dt);
+      if (S.mode === 'dead') { if (now >= S.deadUntil) { newLap(); S.mode = 'run'; } emit(); return; }
+      if (S.mode !== 'run') return;
+      L.t += dt; L.dist += A.v() * dt;
+      if (L.y > 0 || L.vy > 0) { L.vy -= GRAV * dt * (duck ? 1.9 : 1); L.y += L.vy * dt; if (L.y <= 0) { L.y = 0; L.vy = 0; } }
+      const T = trick(); if (T) T.update(A, L, dt);
+      if (L.dist >= L.nextSpawn && L.dist >= L.quiet) spawnNormal();
+      for (const o of L.obs) if (hit(o)) { crash(o); return; }
+      L.obs = L.obs.filter(o => o.x + o.w > L.dist - 300);
+      if (S.cfg.L && L.dist >= S.cfg.L) { S.mode = 'done'; S.fin = true; emit(true); hooks.onFinish && hooks.onFinish(); return; }
+      emit();
+    }
+
+    // ---------- desenho ----------
+    function drawObs(o, L) {
+      const sx = PX + (o.x - L.dist); if (sx > W + 260 || sx + o.w < -260) return;
+      const gy = GROUND - o.b;
+      if (o.type === 'cactus') emo('🌵', o.h * 1.25, sx + o.w / 2, gy + 4);
+      else if (o.type === 'big') emo('🌲', o.h * 1.2, sx + o.w / 2, gy + 4);
+      else if (o.type === 'dbl') { emo('🌵', 50, sx + 13, gy + 4); emo('🌵', 50, sx + o.w - 13, gy + 4); }
+      else if (o.type === 'bird') emo('🦅', 44, sx + o.w / 2, gy + 6);
+      else if (o.type === 'gift') {
+        c.fillStyle = 'rgba(255,210,63,.55)'; c.beginPath(); c.arc(sx + 18, gy - 18, 29 + Math.sin(L.t * 8) * 3, 0, 7); c.fill();
+        emo('🎁', 42, sx + 18, gy + 4);
+        if (o.label) { c.fillStyle = '#ffd23f'; rr(c, sx - 20, gy - 74, 78, 24, 8); c.fill(); txt('GRÁTIS!', sx + 19, gy - 56, 15, '#b91c1c'); }
+      } else if (o.type === 'giant') { emo('🐻', 205, sx + o.w / 2, gy + 22); txt('GRRR!', sx + o.w / 2, gy - 178, 24, '#b91c1c'); }
+      else if (o.type === 'door') {
+        c.save(); c.shadowColor = '#ffd23f'; c.shadowBlur = 16; c.fillStyle = '#8b5a2b'; rr(c, sx, gy - o.h, o.w, o.h, 7); c.fill(); c.restore();
+        c.fillStyle = '#b9814a'; rr(c, sx + 6, gy - o.h + 8, o.w - 12, o.h - 16, 4); c.fill();
+        c.fillStyle = '#ffd23f'; c.beginPath(); c.arc(sx + o.w - 11, gy - o.h / 2, 4.5, 0, 7); c.fill();
+        if (o.label) { c.fillStyle = '#7c3aed'; rr(c, sx - 14, gy - o.h - 28, 74, 22, 8); c.fill(); txt('ENTRE!', sx + o.w / 2, gy - o.h - 12, 14, '#fff'); }
+      } else if (o.type === 'wall') {
+        c.fillStyle = '#6b7280'; c.fillRect(sx, gy - o.h, o.w, o.h);
+        c.strokeStyle = '#374151'; c.lineWidth = 2;
+        for (let y = gy - o.h + 18; y < gy; y += 18) { c.beginPath(); c.moveTo(sx, y); c.lineTo(sx + o.w, y); c.stroke(); }
+        c.strokeRect(sx, gy - o.h, o.w, o.h);
+      }
+    }
+    function drawPlayer(L) {
+      const y = GROUND - L.y, x = PX + PWID / 2;
+      c.fillStyle = 'rgba(30,27,75,.18)'; c.beginPath(); c.ellipse(x, GROUND + 3, 22 - Math.min(14, L.y / 8), 5, 0, 0, 7); c.fill();
+      c.save();
+      if (S.mode === 'dead') { c.translate(x, y); c.rotate(1.4); emo(S.cfg.avatar, 50, 0, 0); }
+      else if (duck && L.y === 0) { c.translate(x, y + 6); c.scale(1.2, 0.6); emo(S.cfg.avatar, 50, 0, 0); }
+      else emo(S.cfg.avatar, 52, x, y + 6 + (L.y === 0 ? -Math.abs(Math.sin(L.dist / 28)) * 3 : 0));
+      c.restore();
+    }
+    function drawHud(L) {
+      const cfg = S.cfg, p = Math.min(1, L.dist / (cfg.L || 1));
+      if (cfg.kind !== 'practice') {
+        c.fillStyle = 'rgba(30,27,75,.2)'; rr(c, 150, 12, 600, 9, 4); c.fill();
+        c.fillStyle = '#5a3fe0'; rr(c, 150, 12, Math.max(6, 600 * p), 9, 4); c.fill();
+        emo('🏁', 20, 770, 26); emo(cfg.avatar, 18, 150 + 600 * p, 30);
+      } else txt('TREINO: pule os obstáculos e se acostume com os controles', W / 2, 22, 15, '#4c3fb8');
+      txt('💥 ' + (S.crashes || 0), 14, 24, 17, '#1d1b4b', 'left');
+      if (cfg.endAt && cfg.kind !== 'practice') {
+        const left = cfg.kind === 'final' ? Date.now() - cfg.startAt : cfg.endAt - Date.now(), s = Math.max(0, Math.floor(left / 1000));
+        txt('⏱ ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'), W - 14, 24, 17, '#1d1b4b', 'right');
+      }
+    }
+    function overlay(msg, sub, color) {
+      c.fillStyle = 'rgba(29,27,75,.55)'; c.fillRect(0, 0, W, H);
+      txt(msg, W / 2, 140, 46, color || '#fff'); if (sub) txt(sub, W / 2, 182, 20, '#fff', 'center', '500');
+    }
+    function draw() {
+      const L = S.lap, cfg = S.cfg;
+      c.save();
+      if (S.shake > 0) c.translate(Math.sin(performance.now() / 20) * 6 * S.shake * 2, 0);
+      const g = c.createLinearGradient(0, 0, 0, GROUND); g.addColorStop(0, '#cfdcff'); g.addColorStop(1, '#f3f6ff');
+      c.fillStyle = g; c.fillRect(-20, 0, W + 40, GROUND);
+      c.globalAlpha = 0.8; c.fillStyle = '#000';
+      for (let i = 0; i < 5; i++) emo('☁️', 38 + (i % 3) * 10, ((i * 230 - L.dist * 0.12) % 1150 + 1150) % 1150 - 100, 78 + (i % 2) * 36);
+      c.globalAlpha = 1;
+      c.fillStyle = '#a79af0'; c.fillRect(-20, GROUND + 3, W + 40, H - GROUND);
+      c.strokeStyle = '#3c2fa5'; c.lineWidth = 3; c.beginPath(); c.moveTo(-20, GROUND + 2); c.lineTo(W + 20, GROUND + 2); c.stroke();
+      c.strokeStyle = '#6f62d9'; c.lineWidth = 2; const off = L.dist % 60;
+      for (let x = -off; x < W; x += 60) { c.beginPath(); c.moveTo(x, GROUND + 22); c.lineTo(x + 22, GROUND + 22); c.stroke(); }
+      if (cfg.L && cfg.L - L.dist < W && !(cfg.trick === 4)) { // linha de chegada real
+        const sx = PX + (cfg.L - L.dist); c.fillStyle = '#1d1b4b'; c.fillRect(sx, GROUND - 120, 6, 120);
+        for (let j = 0; j < 8; j++) for (let i = 0; i < 3; i++) { c.fillStyle = (i + j) % 2 ? '#fff' : '#1d1b4b'; c.fillRect(sx + 6 + i * 12, GROUND - 120 + j * 12, 12, 12); }
+      }
+      for (const o of L.obs) drawObs(o, L);
+      drawPlayer(L);
+      const T = trick(); if (T && T.draw && S.mode !== 'count') T.draw(A, L);
+      c.restore();
+      drawHud(L);
+      if (S.mode === 'count') { const n = Math.ceil((cfg.startAt - Date.now()) / 1000); overlay(n > 0 ? String(n) : 'JÁ!', 'Prepare-se! Espaço ou ↑ pula, ↓ abaixa'); }
+      else if (S.mode === 'dead') overlay('Ops!', 'Voltando para o início…', '#ffd23f');
+      else if (S.mode === 'done') overlay('🏁 Você chegou!', 'Torça pelos colegas que ainda estão correndo', '#86efac');
+      else if (S.mode === 'over') overlay(S.over || 'Tempo!', '', '#fff');
+    }
+    function loop(ts) {
+      raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.05, (ts - lastT) / 1000); lastT = ts;
+      if (S.mode === 'idle') return;
+      update(dt); draw();
+    }
+
+    // ---------- controle ----------
+    return {
+      start(cfg) { S = { mode: 'count', cfg, crashes: 0, cn: 0, ct: 0, fin: false, deadUntil: 0, shake: 0, over: '' }; newLap(); lastT = performance.now(); lastEmit = 0; if (!raf) raf = requestAnimationFrame(loop); },
+      stop(msg) { if (S.mode === 'idle') return; S.mode = 'over'; S.over = msg || ''; draw(); },
+      jump() { if (S.mode === 'run' && S.lap.y === 0) S.lap.vy = JUMPV; },
+      duck(b) { duck = !!b; },
+      pointer(x, y, type) {
+        const T = trick(); if (S.mode !== 'run' || !T) return type === 'down' ? this.jump() : 0;
+        if (type === 'move') { if (T.move) T.move(A, S.lap, x, y); return; }
+        if (T.click && T.click(A, S.lap, x, y)) return;
+        this.jump();
+      },
+      mode: () => S.mode,
+      info: () => ({ mode: S.mode, lap: S.lap, crashes: S.crashes, cn: S.cn, ct: S.ct, fin: S.fin })
+    };
+  }
+  return { create, W, H };
+})();
+
+/* ===== Aplicativo: aluno e professor ===== */
+const $ = id => document.getElementById(id);
+const HOST = location.hash === '#professor';
+const store = (k, v) => { try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) { return null; } };
+let tok = store('trilha_t'); if (!tok) { tok = Math.random().toString(36).slice(2) + Date.now().toString(36); store('trilha_t', tok); }
+let myAv = store('trilha_av'), pin = store('trilha_pin'), S = null, recv = 0, off = false, err = '', runner = null, curRun = -9, readyRun = -1, rejoining = false;
+const post = (u, b) => fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }).then(r => r.status).catch(() => 0);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// ---------- conexão ----------
+function connect() {
+  const es = new EventSource('/events?' + (HOST ? 'pin=' + encodeURIComponent(pin) : 't=' + encodeURIComponent(tok)));
+  es.onmessage = e => {
+    S = JSON.parse(e.data); recv = Date.now(); off = false;
+    if (!HOST && myAv && !S.me && !rejoining) { rejoining = true; post('/join', { t: tok, av: myAv }).then(s => { if (s !== 200) { myAv = null; store('trilha_av', null); } rejoining = false; }); }
+    render();
+  };
+  es.onerror = () => { off = true; if (S) render(); };
 }
-function H(a){
- if(a==='reset'&&!confirm('Reiniciar tudo? Os alunos terão que escolher personagem de novo.'))return;
- post('/host',{pin,a}).then(s=>{if(s===401){ss('trilha_pin',null);pin=prompt('Senha incorreta. Digite de novo:')||'';ss('trilha_pin',pin)}})
+async function start() {
+  if (HOST) {
+    if (!pin) pin = prompt('Senha do professor:') || '';
+    while ((await post('/host', { pin, a: 'ping' })) === 401) pin = prompt('Senha incorreta. Digite de novo:') || '';
+    store('trilha_pin', pin);
+  }
+  connect();
 }
-function host(){
- const ph=S.phase,B=(a,l,c)=>`<button class="${c||'btn big'}" onclick="H('${a}')">${l}</button>`;
- let h=head();
- if(ph==='lobby'){
-  h+=`<div class="card"><h2>Alunos: abram <b>${location.origin}</b> e escolham um personagem</h2><p class="mut">Quando todos aparecerem aqui, comece o jogo.</p>${chips()}<div class="act">${B('start','Começar o jogo').replace('class="btn big"',`class="btn big" ${S.players.length?'':'disabled'}`)}</div></div>`;
-  return h+`<div class="act">${B('reset','Reiniciar','ghost')}</div>`;
- }
- if(ph==='turns'){
-  let r=eventCard();
-  if(!S.wait)r+=`<div class="card ev"><h2>Vez de ${S.cur||'...'}</h2><p class="mut">Esperando a jogada.</p></div>`;
-  r+=logHTML(8)+`<div class="act">${B('skip','Pular a vez','ghost')}</div>`;
-  h+=stage(trailHTML(),r);
- } else {
-  h+=solo();
-  if(ph==='discuss')h+=`<div class="card"><h2>Hora de conversar!</h2><p>Olhem o relatório e deixem a turma discutir. Quando estiverem prontos, abra a votação.</p><div class="act">${B('vote','Abrir a votação')}</div></div>`+report();
-  else if(ph==='vote')h+=`<div class="card"><h2>Votação: ${S.nv} de ${S.players.length} votaram</h2><div class="grid">${S.cards.map((id,i)=>ruleCard(id,i,`<div class="bar"><i style="width:${S.players.length?S.counts[i]/S.players.length*100:0}%"></i></div><small>${S.counts[i]} voto${S.counts[i]==1?'':'s'}</small>`,false)).join('')}</div><div class="act">${B('close','Encerrar a votação')}</div></div>`;
-  else if(ph==='result')h+=resultPanel()+`<div class="act">${B('next','Próxima rodada')}</div>`;
-  else h+=endPanel()+(ph==='lose'?`<div class="act">${B('again','Tentar de novo com as regras criadas')}</div>`:'');
- }
- return h+`<div class="act">${B('reset','Reiniciar tudo','ghost')}</div>`;
+
+// ---------- ajuda de tela ----------
+const VIEWS = ['pick', 'game', 'report', 'discuss', 'vote', 'result', 'end'];
+function show(n) { VIEWS.forEach(v => $('v-' + v).hidden = v !== n); }
+function setView(n, key, html) { const el = $('v-' + n); if (el.dataset.k !== key) { el.dataset.k = key; el.innerHTML = html; } }
+const rulesCards = (cards, sel, click, extra) => cards.map((id, i) => {
+  const r = RULES[id], tag = click ? 'button' : 'div';
+  return `<${tag} class="rule ${i === sel ? 'sel' : ''}" ${click ? `onclick="vote(${i})"` : ''}><b>${r.t}</b>${r.d}${extra ? extra(i) : ''}</${tag}>`;
+}).join('');
+
+// ---------- aluno ----------
+function join(av) { post('/join', { t: tok, av }).then(s => { if (s === 200) { myAv = av; store('trilha_av', av); err = ''; } else err = s === 409 ? 'Esse personagem já foi escolhido. Escolha outro.' : 'Não deu para entrar. Avise o professor.'; render(); }); }
+function ready() { readyRun = S.runId; post('/ready', { t: tok }); render(); }
+function vote(i) { post('/vote', { t: tok, c: i }); S.me.vote = i; render(); }
+
+function renderStrip() {
+  const lane = $('lane'), me = S.me ? S.me.av : '';
+  if (lane.dataset.n !== String(S.team.length)) { lane.dataset.n = S.team.length; lane.innerHTML = ''; }
+  S.team.forEach((t, i) => {
+    let d = lane.querySelector('[data-av="' + t.av + '"]');
+    if (!d) { d = document.createElement('div'); d.className = 'mate' + (t.av === me ? ' me' : ''); d.dataset.av = t.av; d.dataset.c = t.c; d.innerHTML = t.av + '<i></i>'; lane.appendChild(d); }
+    d.style.left = `calc(${t.p * 100}% - ${t.p * 28}px)`; d.style.top = (i % 3) * 22 + 'px';
+    if (+d.dataset.c !== t.c) { d.dataset.c = t.c; d.classList.remove('hit'); void d.offsetWidth; d.classList.add('hit'); }
+  });
 }
-function render(){
- if(!S){app.innerHTML='<p class="card">Conectando ao jogo...</p>';return}
- sync();app.innerHTML=HOST?host():player();
+function ensureRunner() {
+  if (runner) return runner;
+  const cv = $('cv');
+  runner = Runner.create(cv, {
+    onProgress: s => { if (curRun > 0 && S && S.phase === 'run') post('/prog', Object.assign({ t: tok, runId: curRun }, s)); },
+    onFinish: () => {}
+  });
+  const pt = (e, type) => { const r = cv.getBoundingClientRect(); runner.pointer((e.clientX - r.left) * Runner.W / r.width, (e.clientY - r.top) * Runner.H / r.height, type); };
+  cv.addEventListener('pointerdown', e => pt(e, 'down'));
+  cv.addEventListener('pointermove', e => pt(e, 'move'));
+  window.addEventListener('keydown', e => {
+    if (['ArrowDown', 'ArrowUp', ' ', 'Spacebar'].includes(e.key) && !$('v-game').hidden) e.preventDefault();
+    if (e.repeat) return;
+    if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') runner.jump();
+    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') runner.duck(true);
+  });
+  window.addEventListener('keyup', e => { if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') runner.duck(false); });
+  return runner;
 }
-render();
+function gameSync() {
+  const R = ensureRunner();
+  if (S.phase === 'run') {
+    if (curRun === S.runId) return;
+    curRun = S.runId;
+    const loc = Date.now() + (S.startAt - S.now), trick = S.kind === 'trick' ? S.me.trick : null;
+    if (Date.now() > loc + S.dur) { R.stop('Tempo!'); return; }
+    if (S.kind === 'trick' && trick == null) { curRun = -3; R.start({ avatar: myAv, trick: null, kind: 'practice', L: 1e9, startAt: Date.now() }); return; }
+    R.start({ avatar: myAv, trick, kind: S.kind, L: S.kind === 'final' ? 60000 : 8000, startAt: loc, endAt: loc + S.dur });
+  } else if (S.phase === 'lobby') {
+    if (curRun !== -2) { curRun = -2; R.start({ avatar: myAv, trick: null, kind: 'practice', L: 1e9, startAt: Date.now() }); }
+  } else if (curRun !== -9) { curRun = -9; R.stop(); }
+}
+function gameText() {
+  let t = '';
+  if (S.phase === 'lobby') t = `<b>Você está dentro, ${myAv}!</b> Treine à vontade. O objetivo do grupo é simples: <b>todos precisam chegar ao final</b>. O Jogo vai tentar impedir. Espere o professor começar.`;
+  else if (S.phase === 'run' && S.kind === 'trick' && S.me.trick == null) t = 'Você entrou no meio da rodada. Treine até a próxima começar.';
+  else if (S.phase === 'run') t = S.kind === 'final' ? 'Corrida final! Se tudo estiver justo, todos chegam. Vá firme.' : 'Chegue ao final. Pule com espaço ou ↑ e abaixe com ↓.';
+  $('gtxt').innerHTML = t;
+}
+function reportHTML() {
+  const me = S.me;
+  if (me.trick == null) return `<div class="card"><h2>Você entrou no meio da rodada</h2><p>Não deu tempo de viver um truque. Escute os colegas na conversa.</p><div class="act"><button class="btn big" onclick="ready()">Já li</button></div></div>`;
+  const T = TRK[me.trick];
+  return `<div class="card no"><div class="big-e">${T.e}</div><h2>O que o Jogo fez com você: ${T.n}</h2><p>${T.d}</p>
+    <div class="stats"><span class="stat">💥 ${me.c} ${me.c === 1 ? "batida" : "batidas"}</span><span class="stat">${me.ct} por causa do truque</span><span class="stat">${me.cn} em obstáculos normais</span></div>
+    <p class="mut">Seus colegas podem ter vivido algo bem diferente. Na conversa, descubram o que aconteceu com cada um.</p>
+    <div class="act" id="rdy"></div></div>`;
+}
+function renderReport() {
+  setView('report', 'r' + S.runId, reportHTML());
+  const el = $('rdy') || $('v-report').querySelector('.act');
+  const done = readyRun === S.runId || S.me.ready;
+  if (el) el.innerHTML = done ? `<span class="pill ok">Aguardando os colegas: ${S.nr} de ${S.n} já leram</span>` : `<button class="btn big" onclick="ready()">Já li, pode continuar</button>`;
+}
+function renderStudent() {
+  const me = S.me;
+  if (!me) { show('pick'); const taken = S.team.map(t => t.av); setView('pick', 'p' + taken.join(), `<div class="card"><h1>Escolha seu personagem</h1><p class="mut">Vocês precisam chegar <b>juntos</b> ao final da corrida. O Jogo vai tentar impedir. Não precisa digitar nome.</p>${err ? `<p><b>${err}</b></p>` : ''}<div class="av-pick">${EM.map(e => `<button ${taken.includes(e) ? 'disabled' : ''} onclick="join('${e}')" aria-label="Personagem ${e}">${e}</button>`).join('')}</div></div>`); return; }
+  const ph = S.phase, v = { lobby: 'game', run: 'game', report: 'report', discuss: 'discuss', vote: 'vote', result: 'result', end: 'end' }[ph];
+  show(v);
+  if (v === 'game') { gameSync(); gameText(); renderStrip(); }
+  else if (curRun !== -9) { curRun = -9; ensureRunner().stop(); }
+  if (ph === 'report') renderReport();
+  else if (ph === 'discuss') setView('discuss', 'd' + S.runId, `<div class="card"><h2>Hora de conversar!</h2><p>Cada um viu uma coisa diferente na tela. Falem em voz alta, sem olhar a tela do colega:</p><ul><li>O que apareceu no seu jogo? E no dos colegas?</li><li>Era falta de habilidade ou o jogo estava armado?</li><li>O que um jogo precisa prometer para ser justo com todo mundo?</li></ul><p class="mut">Quando todos tiverem falado, o professor abre a votação.</p></div>`);
+  else if (ph === 'vote') {
+    setView('vote', 'v' + S.runId + S.cards.join() + me.vote, `<div class="card"><h2>Votem na regra!</h2><p class="mut">${me.vote < 0 ? 'Escolha uma regra. A mais votada vale para todos. Conversem antes de decidir.' : 'Voto registrado. Você pode trocar até o professor encerrar.'}</p><div class="grid">${rulesCards(S.cards, me.vote, true)}</div><p class="mut" id="nv"></p></div>`);
+    $('nv').textContent = S.nv + ' de ' + S.n + ' já votaram';
+  }
+  else if (ph === 'result') renderResult();
+  else if (ph === 'end') renderEnd();
+}
+function renderResult() {
+  const id = S.res, r = RULES[id], me = S.me, c = S.counts || [];
+  const tally = rulesCards(S.cards, -1, false, i => `<div class="bar"><i style="width:${S.n ? c[i] / S.n * 100 : 0}%"></i></div><small>${c[i]} voto${c[i] === 1 ? '' : 's'}</small>`);
+  let h;
+  if (id < 10) {
+    const mine = me.trick === id, left = S.alive.length;
+    h = `<div class="card ok"><h2>✅ Regra aprovada: ${r.t}</h2><div class="big-e">${TRK[id].e}</div><p><b>${TRK[id].n}</b> sumiu do jogo para todo mundo.</p>
+      <p>${mine ? 'Esse era o truque do <b>seu</b> jogo. Agora ele acabou.' : 'Esse não era o seu truque, mas ' + (S.freed === 1 ? 'libertou 1 colega.' : 'libertou ' + S.freed + ' colegas.')}</p>
+      <p class="mut">${left ? 'Ainda restam ' + left + ' truque' + (left > 1 ? 's' : '') + '. Eles <b>mudam de alvo</b>: na próxima rodada você pode enfrentar um truque diferente.' : 'Todos os truques sumiram! A próxima é a corrida final.'}</p></div>`;
+  } else h = `<div class="card no"><h2>🤔 Regra aprovada: ${r.t}</h2><p>${r.n}</p><p class="mut">Os truques continuam, mas vão para outros alunos. Na próxima rodada, vocês podem escolher de novo.</p></div>`;
+  setView('result', 'x' + S.runId + id, h + `<div class="card"><h2>Como foi a votação</h2><div class="grid">${tally}</div></div><p class="act mut">Aguarde o professor começar a próxima rodada.</p>`);
+}
+function renderEnd() {
+  if (S.allFin) setView('end', 'win', `<div class="card ok"><h2>🎉 Todos chegaram ao final, juntos!</h2><p><b>As regras que vocês criaram:</b></p><ul>${S.adopted.map(i => `<li><b>${RULES[i].t}.</b> ${RULES[i].k}</li>`).join('')}</ul>${S.skipped ? '<p class="mut">O professor adiantou a corrida final, então alguns truques não chegaram a ser derrubados pela turma.</p>' : ''}<p>Essas regras existem de verdade. É o <b>ECA Digital</b> (Lei 15.211/2025): uma lei que obriga quem cria jogos e redes a proteger crianças e adolescentes, sem tirar o direito de jogar e de usar a internet. A lei não está contra vocês. Ela está do lado de vocês.</p><p class="mut"><b>Para conversar:</b> qual truque foi o mais difícil de perceber? Vocês já viram algum desses em jogos ou aplicativos de verdade?</p></div>`);
+  else setView('end', 'lose' + S.runId, `<div class="card no"><h2>Quase! Nem todos chegaram ao final</h2><p>O tempo acabou antes de todos cruzarem a linha. Conversem: o que aconteceu? O professor pode abrir mais uma tentativa.</p></div>`);
+}
+
+// ---------- professor ----------
+function H(a) { if (a === 'reset' && !confirm('Reiniciar tudo? Todos os alunos terão que escolher personagem de novo.')) return; if (a === 'finalnow' && !confirm('Pular direto para a corrida final? Os truques restantes serão removidos.')) return; post('/host', { pin, a }); }
+const B = (a, l, c) => `<button class="${c || 'btn big'}" onclick="H('${a}')">${l}</button>`;
+function stateOf(t) {
+  if (S.phase === 'run') return t.f ? '<span class="pill ok">chegou</span>' : t.c ? '<span class="pill no">correndo, bateu ' + t.c + '</span>' : '<span class="pill">correndo</span>';
+  if (S.phase === 'report') return t.r ? '<span class="pill ok">já leu</span>' : '<span class="pill">lendo…</span>';
+  return '';
+}
+function renderHost() {
+  const ph = S.phase, lab = { lobby: 'Sala de espera', run: S.kind === 'final' ? 'Corrida final' : 'Corrida com truques', report: 'Relatórios pessoais', discuss: 'Conversa em grupo', vote: 'Votação', result: 'Resultado da votação', end: 'Fim' }[ph];
+  let left = '';
+  if (ph === 'run') { const rem = Math.round((S.startAt - S.now + S.dur - (Date.now() - recv)) / 1000); left = rem > S.dur / 1000 ? ' · começa em ' + Math.ceil(rem - S.dur / 1000) + 's' : S.kind === 'final' ? ' · limite em ' + Math.max(0, rem) + 's' : ' · restam ' + Math.max(0, rem) + 's'; }
+  let ctrl = '', tip = '';
+  if (ph === 'lobby') { ctrl = B('start', 'Começar a primeira rodada').replace('class="btn big"', `class="btn big" ${S.n ? '' : 'disabled'}`); tip = `Peça aos alunos para abrirem <b>${esc(location.origin)}</b> e escolherem um personagem. Eles já podem treinar.`; }
+  else if (ph === 'run') { ctrl = B('endrun', 'Encerrar a rodada agora', 'ghost'); tip = S.kind === 'final' ? 'Todos correndo sem truques. A rodada acaba quando o último chega.' : 'Cada aluno tem um truque diferente. Ninguém consegue chegar. Observe a tabela.'; }
+  else if (ph === 'report') { ctrl = B('force', 'Seguir para a conversa mesmo sem todos', 'ghost'); tip = `Cada aluno está lendo o que o Jogo fez com ele. <b>${S.nr} de ${S.n}</b> já clicaram em "Já li".`; }
+  else if (ph === 'discuss') { ctrl = B('vote', 'Abrir a votação'); tip = 'Conduza a conversa em voz alta: o que apareceu na tela de cada um? Era falta de habilidade ou o jogo estava armado?'; }
+  else if (ph === 'vote') { ctrl = B('close', 'Encerrar a votação').replace('class="btn big"', `class="btn big" ${S.nv ? '' : 'disabled'}`); tip = `<b>${S.nv} de ${S.n}</b> votaram. Deixe a turma debater antes de encerrar.`; }
+  else if (ph === 'result') { ctrl = B('next', S.alive.length ? 'Próxima rodada' : 'Começar a corrida final'); tip = 'Comente com a turma o que a regra aprovada resolve.'; }
+  else { ctrl = (S.allFin ? '' : B('again', 'Tentar a corrida final de novo')); tip = S.allFin ? 'Todos chegaram. Feche com a conversa sobre o ECA Digital.' : 'Nem todos chegaram a tempo.'; }
+  let extra = '';
+  if (ph === 'vote' || ph === 'result') { const c = S.counts || []; extra = `<div class="card"><h2>Votos</h2><div class="grid">${rulesCards(S.cards, ph === 'result' ? S.cards.indexOf(S.res) : -1, false, i => `<div class="bar"><i style="width:${S.n ? c[i] / S.n * 100 : 0}%"></i></div><small>${c[i] || 0} voto${c[i] === 1 ? '' : 's'}</small>`)}</div></div>`; }
+  const rows = S.team.map(t => `<tr><td class="e">${t.av}</td><td>${t.trick != null && ph !== 'lobby' && S.kind !== 'final' ? TRK[t.trick].e + ' ' + TRK[t.trick].n : '—'}</td><td>${stateOf(t)}</td><td>${t.c}</td><td>${Math.round(t.p * 100)}%</td></tr>`).join('');
+  const alive = [0, 1, 2, 3, 4].map(i => S.alive.includes(i) ? `<span class="pill no">${TRK[i].e} ativo</span>` : `<span class="pill ok">${TRK[i].e} removido</span>`).join(' ');
+  const skip = ['report', 'discuss', 'vote', 'result'].includes(ph) && S.alive.length ? B('finalnow', 'Pular para a corrida final', 'warn') : '';
+  $('host').innerHTML = `${off ? '<div class="conn">Sem conexão. Tentando de novo...</div>' : ''}
+   <div class="top"><span>Painel do professor</span><span>${lab}${left}</span><span>Rodada ${S.round} · ${S.n} aluno${S.n === 1 ? '' : 's'}</span></div>
+   <div class="card"><h2>${lab}</h2><p>${tip}</p><div class="act">${ctrl}</div></div>
+   <div class="card"><h2>Truques do Jogo</h2><p>${alive}</p></div>${extra}
+   <div class="card"><h2>Alunos</h2><table><tr><th></th><th>Truque no jogo dele</th><th>Estado</th><th>Batidas</th><th>Chegou a</th></tr>${rows || '<tr><td colspan="5" class="mut">Ninguém entrou ainda.</td></tr>'}</table></div>
+   <div class="act">${skip}${B('reset', 'Reiniciar tudo', 'ghost')}</div>`;
+}
+
+function render() {
+  if (!S) return;
+  if (HOST) { $('app').hidden = true; $('host').hidden = false; renderHost(); return; }
+  $('bar').innerHTML = (off ? '<div class="conn">Sem conexão. Tentando de novo...</div>' : '') + `<div class="top"><span>Atravessem a Trilha</span><span>${S.phase === 'lobby' ? 'Sala de espera' : 'Rodada ' + S.round}</span><span>${S.n} jogador${S.n === 1 ? '' : 'es'}</span></div>`;
+  renderStudent();
+}
+if (HOST) setInterval(() => { if (S && S.phase === 'run') renderHost(); }, 1000);
+start();
+
 </script>
 </body>
 </html>
