@@ -17,13 +17,13 @@ Botões úteis: **Seguir para a conversa mesmo sem todos** (se alguém travar no
 
 | Truque | O que o aluno vive | Regra que remove |
 |---|---|---|
-| Presente | O "prêmio" é armadilha; se desvia, vêm mais, até não dar para evitar | O jogo não pode enganar você |
-| Anúncio | Um pop-up cobre a tela no meio do jogo, com um X minúsculo que foge | O jogo não pode atrapalhar quem está jogando |
+| Presente | O "prêmio" é armadilha; se desvia, vêm mais, e o último puxa o jogador para baixo no pulo | O jogo não pode enganar você |
+| Anúncio | Um pop-up cobre a tela no meio do jogo (o X é minúsculo e foge); os obstáculos continuam vindo escondidos | O jogo não pode atrapalhar quem está jogando |
 | Bicho gigante | Obstáculo grande demais para pular | O jogo tem que ser justo com todo mundo |
 | "Amigo" | Fala coisas tentadoras e abre portas impossíveis de desviar | O jogo tem que proteger você de quem você não conhece |
-| Linha que foge | A chegada foge; depois o jogo acelera e enche a pista | O jogo não pode prender você |
+| Linha que foge | A chegada foge; depois o jogo acelera e um cacto cresce de repente na frente | O jogo não pode prender você |
 
-Os personagens e obstáculos são pixel art desenhada em código (sem imagens externas). As armadilhas só começam depois de alguns segundos de cada tentativa e variam de tentativa para tentativa; cada tentativa dura entre 10 e 20 segundos até a batida.
+Visual arcade anos 80/90, todo desenhado em código; as fontes pixeladas vão embutidas no `index.html` e funcionam sem internet. As armadilhas só começam depois de alguns segundos de cada tentativa e variam de tentativa para tentativa; cada tentativa dura entre 10 e 20 segundos até a batida.
 
 Em cada votação aparecem 5 regras (até 3 corretas e o resto enganosas, como "pintar a pista"). Escolher uma regra enganosa não remove nada, e a explicação aparece no resultado. Os truques que sobram passam para outros alunos na rodada seguinte, e todo aluno sempre tem um truque.
 
